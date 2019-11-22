@@ -93,8 +93,6 @@
             this.animationList.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.animationList.FormattingEnabled = true;
             this.animationList.ItemHeight = 20;
-            this.animationList.Items.AddRange(new object[] {
-            "memes"});
             this.animationList.Location = new System.Drawing.Point(12, 20);
             this.animationList.Name = "animationList";
             this.animationList.Size = new System.Drawing.Size(694, 544);
@@ -109,6 +107,7 @@
             this.addAnimButton.TabIndex = 1;
             this.addAnimButton.Text = "Add Animation";
             this.addAnimButton.UseVisualStyleBackColor = true;
+            this.addAnimButton.Click += new System.EventHandler(this.addAnimButton_Click);
             // 
             // removeAnimButton
             // 
