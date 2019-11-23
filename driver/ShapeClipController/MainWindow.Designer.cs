@@ -43,8 +43,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.comPortLabel);
-            this.groupBox1.Controls.Add(this.comSelectBox);
             this.groupBox1.Controls.Add(this.removeAnimButton);
             this.groupBox1.Controls.Add(this.addAnimButton);
             this.groupBox1.Controls.Add(this.animationList);
@@ -58,7 +56,7 @@
             // comPortLabel
             // 
             this.comPortLabel.AutoSize = true;
-            this.comPortLabel.Location = new System.Drawing.Point(291, 584);
+            this.comPortLabel.Location = new System.Drawing.Point(85, 579);
             this.comPortLabel.Name = "comPortLabel";
             this.comPortLabel.Size = new System.Drawing.Size(55, 13);
             this.comPortLabel.TabIndex = 4;
@@ -68,7 +66,7 @@
             // comSelectBox
             // 
             this.comSelectBox.FormattingEnabled = true;
-            this.comSelectBox.Location = new System.Drawing.Point(292, 599);
+            this.comSelectBox.Location = new System.Drawing.Point(86, 594);
             this.comSelectBox.Name = "comSelectBox";
             this.comSelectBox.Size = new System.Drawing.Size(121, 21);
             this.comSelectBox.TabIndex = 3;
@@ -83,6 +81,7 @@
             this.removeAnimButton.TabIndex = 2;
             this.removeAnimButton.Text = "Delete Animation";
             this.removeAnimButton.UseVisualStyleBackColor = true;
+            this.removeAnimButton.Click += new System.EventHandler(this.removeAnimButton_Click);
             // 
             // addAnimButton
             // 
@@ -109,7 +108,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.comPortLabel);
             this.groupBox2.Controls.Add(this.uploadButton);
+            this.groupBox2.Controls.Add(this.comSelectBox);
             this.groupBox2.Controls.Add(this.toggleButton);
             this.groupBox2.Location = new System.Drawing.Point(735, 12);
             this.groupBox2.Name = "groupBox2";
@@ -157,8 +158,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ShapeClip Controller";
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
