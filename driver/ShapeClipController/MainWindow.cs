@@ -16,7 +16,7 @@ namespace ShapeClipController
     public partial class MainWindow : Form
     {
         private int _toggleBtnState = 0;
-        private Dictionary<string, string> loadedAnims = new Dictionary<string, string>();
+        private Dictionary<string, string> _loadedAnims = new Dictionary<string, string>();
 
         public MainWindow()
         {
@@ -52,7 +52,7 @@ namespace ShapeClipController
                     var regex = Regex.Match(item, "^.*(?=(\\.sca))");
 
                     animationList.Items.Add(regex.Value);
-                    loadedAnims.Add(file[0], file[1]);
+                    _loadedAnims.Add(file[0], file[1]);
                 }
                 else
                 {
@@ -84,7 +84,7 @@ namespace ShapeClipController
 
                 serial.Open();
                 {
-                    var sent = serial.Send(loadedAnims[selected + ".sca"]);
+                    var sent = serial.Send(_loadedAnims[selected + ".sca"]);
                     if (!sent)
                     {
                         var title = "Oops!";
@@ -115,7 +115,7 @@ namespace ShapeClipController
         private void removeAnimButton_Click(object sender, EventArgs e)
         {
             string selected = animationList.SelectedItem.ToString();
-            loadedAnims.Remove(selected + ".sca");
+            _loadedAnims.Remove(selected + ".sca");
             animationList.Items.RemoveAt(animationList.SelectedIndex);
         }
     }
