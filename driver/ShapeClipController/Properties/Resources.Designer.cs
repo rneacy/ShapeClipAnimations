@@ -88,7 +88,7 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to UPLOADING....
+        ///   Looks up a localized string similar to UPLOADING.
         /// </summary>
         internal static string UPLOADBTN_UPLOADING {
             get {

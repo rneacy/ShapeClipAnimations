@@ -77,22 +77,29 @@ namespace ShapeClipController
             string selected = animationList.SelectedItem.ToString();
             if (!selected.Equals(""))
             {
+                uploadButton.Enabled = false;
+                uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
+
                 var serial = new Serial(comSelectBox.SelectedItem.ToString());
 
                 serial.Open();
-                var sent = serial.Send(loadedAnims[selected]);
-                if (!sent)
                 {
-                    var title = "Oops!";
-                    var message = "There was a problem with serial communications.";
-                    var btns = MessageBoxButtons.OK;
-                    var icon = MessageBoxIcon.Error;
+                    var sent = serial.Send(loadedAnims[selected + ".sca"]);
+                    if (!sent)
+                    {
+                        var title = "Oops!";
+                        var message = "There was a problem with serial communications.";
+                        var btns = MessageBoxButtons.OK;
+                        var icon = MessageBoxIcon.Error;
 
-                    MessageBox.Show(message, title, btns, icon);
+                        MessageBox.Show(message, title, btns, icon);
+                    }
+                    while (serial.Reading) { }
                 }
-                while (serial.Reading) { }
-
                 serial.Close();
+
+                uploadButton.Enabled = true;
+                uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOAD;
             }
             else
             {

@@ -127,6 +127,6 @@
     <value>UPLOAD</value>
   </data>
   <data name="UPLOADBTN_UPLOADING" xml:space="preserve">
-    <value>UPLOADING...</value>
+    <value>UPLOADING</value>
   </data>
 </root>
