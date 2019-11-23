@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -47,7 +48,10 @@ namespace ShapeClipController
             {
                 if (!animationList.Items.Contains(file[0]))
                 {
-                    animationList.Items.Add(file[0]);
+                    var item = file[0];
+                    var regex = Regex.Match(item, "^.*(?=(\\.sca))");
+
+                    animationList.Items.Add(regex.Value);
                     loadedAnims.Add(file[0], file[1]);
                 }
                 else
@@ -64,7 +68,8 @@ namespace ShapeClipController
 
         private void animationList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            uploadButton.Enabled = true;
+            removeAnimButton.Enabled = (animationList.Items.Count != 0);
+            uploadButton.Enabled = removeAnimButton.Enabled;
         }
 
         private void uploadButton_Click(object sender, EventArgs e)
@@ -98,6 +103,13 @@ namespace ShapeClipController
 
                 MessageBox.Show(message, title, btns, icon);
             }
+        }
+
+        private void removeAnimButton_Click(object sender, EventArgs e)
+        {
+            string selected = animationList.SelectedItem.ToString();
+            loadedAnims.Remove(selected + ".sca");
+            animationList.Items.RemoveAt(animationList.SelectedIndex);
         }
     }
 }
