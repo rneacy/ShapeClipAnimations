@@ -11,13 +11,6 @@ namespace ShapeClipController
 {
     static class Util
     {
-        public static string[] GetSerialPorts()
-        {
-            // code to remove unusable serial ports...
-            var ports = SerialPort.GetPortNames();
-            return ports;
-        }
-
         public static string[] OpenSCA()
         {
             var fileName = string.Empty;

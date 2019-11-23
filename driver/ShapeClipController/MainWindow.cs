@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,17 +14,16 @@ namespace ShapeClipController
 {
     public partial class MainWindow : Form
     {
-
         private int _toggleBtnState = 0;
+        private Dictionary<string, string> loadedAnims = new Dictionary<string, string>();
 
         public MainWindow()
         {
             InitializeComponent();
-            var ports = Util.GetSerialPorts();
+            var ports = Serial.GetSerialPorts();
 
             foreach (string port in ports)
             {
-                Console.WriteLine(port);
                 comSelectBox.Items.Add(port);
             }
 
@@ -48,6 +48,7 @@ namespace ShapeClipController
                 if (!animationList.Items.Contains(file[0]))
                 {
                     animationList.Items.Add(file[0]);
+                    loadedAnims.Add(file[0], file[1]);
                 }
                 else
                 {
@@ -58,6 +59,44 @@ namespace ShapeClipController
 
                     MessageBox.Show(message, title, btns, icon);
                 }
+            }
+        }
+
+        private void animationList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            uploadButton.Enabled = true;
+        }
+
+        private void uploadButton_Click(object sender, EventArgs e)
+        {
+            string selected = animationList.SelectedItem.ToString();
+            if (!selected.Equals(""))
+            {
+                var serial = new Serial(comSelectBox.SelectedItem.ToString());
+
+                serial.Open();
+                var sent = serial.Send(loadedAnims[selected]);
+                if (!sent)
+                {
+                    var title = "Oops!";
+                    var message = "There was a problem with serial communications.";
+                    var btns = MessageBoxButtons.OK;
+                    var icon = MessageBoxIcon.Error;
+
+                    MessageBox.Show(message, title, btns, icon);
+                }
+                while (serial.Reading) { }
+
+                serial.Close();
+            }
+            else
+            {
+                var title = "Oops!";
+                var message = "Invalid animation.";
+                var btns = MessageBoxButtons.OK;
+                var icon = MessageBoxIcon.Error;
+
+                MessageBox.Show(message, title, btns, icon);
             }
         }
     }
