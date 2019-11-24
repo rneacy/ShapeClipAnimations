@@ -61,6 +61,24 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ShapeClip Controller.
+        /// </summary>
+        internal static string TITLEBAR_MAIN {
+            get {
+                return ResourceManager.GetString("TITLEBAR_MAIN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Connected Clip.
+        /// </summary>
+        internal static string TITLEBAR_NOPORT {
+            get {
+                return ResourceManager.GetString("TITLEBAR_NOPORT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to START.
         /// </summary>
         internal static string TOGGLEBTN_START {

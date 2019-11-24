@@ -21,14 +21,7 @@ namespace ShapeClipController
         public MainWindow()
         {
             InitializeComponent();
-            var ports = Serial.GetSerialPorts();
-
-            foreach (string port in ports)
-            {
-                comSelectBox.Items.Add(port);
-            }
-
-            comSelectBox.SelectedItem = comSelectBox.Items[0];
+            GetSerialPorts();
         }
 
         private void toggleButton_Click(object sender, EventArgs e)
@@ -80,23 +73,28 @@ namespace ShapeClipController
                 uploadButton.Enabled = false;
                 uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
-                var serial = new Serial(comSelectBox.SelectedItem.ToString());
+                var port = comSelectBox.SelectedItem.ToString();
+                var serial = new Serial(port);
 
-                serial.Open();
+                var sent = false;
+                if(serial.Open())
                 {
-                    var sent = serial.Send(_loadedAnims[selected + ".sca"]);
-                    if (!sent)
-                    {
-                        var title = "Oops!";
-                        var message = "There was a problem with serial communications.";
-                        var btns = MessageBoxButtons.OK;
-                        var icon = MessageBoxIcon.Error;
-
-                        MessageBox.Show(message, title, btns, icon);
-                    }
+                    sent = serial.Send(_loadedAnims[selected + ".sca"]);
+                    
                     while (serial.Reading) { }
+
+                    serial.Close();
                 }
-                serial.Close();
+
+                if (!sent)
+                {
+                    var title = "Oops!";
+                    var message = "Could not communicate with ShapeClip on port " + port + ".";
+                    var btns = MessageBoxButtons.OK;
+                    var icon = MessageBoxIcon.Error;
+
+                    MessageBox.Show(message, title, btns, icon);
+                }
 
                 uploadButton.Enabled = true;
                 uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOAD;
@@ -117,6 +115,38 @@ namespace ShapeClipController
             string selected = animationList.SelectedItem.ToString();
             _loadedAnims.Remove(selected + ".sca");
             animationList.Items.RemoveAt(animationList.SelectedIndex);
+        }
+
+        private void comSelectBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Text = Properties.Resources.TITLEBAR_MAIN + " | " + comSelectBox.SelectedItem;
+        }
+
+        private void serialPortRefreshButton_Click(object sender, EventArgs e)
+        {
+            GetSerialPorts();
+        }
+
+        private void GetSerialPorts()
+        {
+            var ports = Serial.GetSerialPorts();
+
+            if (ports.Length != 0)
+            {
+                foreach (string port in ports)
+                {
+                    comSelectBox.Items.Add(port);
+                }
+
+                comSelectBox.SelectedItem = comSelectBox.Items[0];
+
+                addAnimButton.Enabled = true;
+            }
+            else
+            {
+                Text = Properties.Resources.TITLEBAR_MAIN + " | " + Properties.Resources.TITLEBAR_NOPORT;
+                addAnimButton.Enabled = false;
+            }
         }
     }
 }

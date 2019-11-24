@@ -29,14 +29,15 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comPortLabel = new System.Windows.Forms.Label();
-            this.comSelectBox = new System.Windows.Forms.ComboBox();
             this.removeAnimButton = new System.Windows.Forms.Button();
             this.addAnimButton = new System.Windows.Forms.Button();
             this.animationList = new System.Windows.Forms.ListBox();
+            this.comPortLabel = new System.Windows.Forms.Label();
+            this.comSelectBox = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.uploadButton = new System.Windows.Forms.Button();
             this.toggleButton = new System.Windows.Forms.Button();
+            this.serialPortRefreshButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -52,24 +53,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Animations";
-            // 
-            // comPortLabel
-            // 
-            this.comPortLabel.AutoSize = true;
-            this.comPortLabel.Location = new System.Drawing.Point(85, 579);
-            this.comPortLabel.Name = "comPortLabel";
-            this.comPortLabel.Size = new System.Drawing.Size(55, 13);
-            this.comPortLabel.TabIndex = 4;
-            this.comPortLabel.Text = "Serial Port";
-            this.comPortLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // comSelectBox
-            // 
-            this.comSelectBox.FormattingEnabled = true;
-            this.comSelectBox.Location = new System.Drawing.Point(86, 594);
-            this.comSelectBox.Name = "comSelectBox";
-            this.comSelectBox.Size = new System.Drawing.Size(121, 21);
-            this.comSelectBox.TabIndex = 3;
             // 
             // removeAnimButton
             // 
@@ -106,8 +89,28 @@
             this.animationList.TabIndex = 0;
             this.animationList.SelectedIndexChanged += new System.EventHandler(this.animationList_SelectedIndexChanged);
             // 
+            // comPortLabel
+            // 
+            this.comPortLabel.AutoSize = true;
+            this.comPortLabel.Location = new System.Drawing.Point(48, 579);
+            this.comPortLabel.Name = "comPortLabel";
+            this.comPortLabel.Size = new System.Drawing.Size(55, 13);
+            this.comPortLabel.TabIndex = 4;
+            this.comPortLabel.Text = "Serial Port";
+            this.comPortLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // comSelectBox
+            // 
+            this.comSelectBox.FormattingEnabled = true;
+            this.comSelectBox.Location = new System.Drawing.Point(49, 594);
+            this.comSelectBox.Name = "comSelectBox";
+            this.comSelectBox.Size = new System.Drawing.Size(116, 21);
+            this.comSelectBox.TabIndex = 3;
+            this.comSelectBox.SelectedIndexChanged += new System.EventHandler(this.comSelectBox_SelectedIndexChanged);
+            // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.serialPortRefreshButton);
             this.groupBox2.Controls.Add(this.comPortLabel);
             this.groupBox2.Controls.Add(this.uploadButton);
             this.groupBox2.Controls.Add(this.comSelectBox);
@@ -143,6 +146,16 @@
             this.toggleButton.UseVisualStyleBackColor = true;
             this.toggleButton.Click += new System.EventHandler(this.toggleButton_Click);
             // 
+            // serialPortRefreshButton
+            // 
+            this.serialPortRefreshButton.Location = new System.Drawing.Point(181, 593);
+            this.serialPortRefreshButton.Name = "serialPortRefreshButton";
+            this.serialPortRefreshButton.Size = new System.Drawing.Size(70, 23);
+            this.serialPortRefreshButton.TabIndex = 5;
+            this.serialPortRefreshButton.Text = "Refresh";
+            this.serialPortRefreshButton.UseVisualStyleBackColor = true;
+            this.serialPortRefreshButton.Click += new System.EventHandler(this.serialPortRefreshButton_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -156,7 +169,7 @@
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ShapeClip Controller";
+            this.Text = Properties.Resources.TITLEBAR_MAIN + " | " + Properties.Resources.TITLEBAR_NOPORT;
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -175,6 +188,7 @@
         private System.Windows.Forms.Button addAnimButton;
         private System.Windows.Forms.Label comPortLabel;
         private System.Windows.Forms.ComboBox comSelectBox;
+        private System.Windows.Forms.Button serialPortRefreshButton;
     }
 }
 

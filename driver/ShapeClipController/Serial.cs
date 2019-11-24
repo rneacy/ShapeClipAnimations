@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net.Security;
@@ -42,7 +43,14 @@ namespace ShapeClipController
                     WriteTimeout = 500
                 };
 
-                _serialPort.Open();
+                try
+                {
+                    _serialPort.Open();
+                }
+                catch (IOException)
+                {
+                    success = false;
+                }
 
             }
             catch (UnauthorizedAccessException ex)
