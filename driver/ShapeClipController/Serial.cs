@@ -35,25 +35,18 @@ namespace ShapeClipController
                 {
                     BaudRate = 9600,
                     PortName = Port,
-                    Parity = Parity.None,
+                    Parity   = Parity.None,
                     DataBits = 8,
                     StopBits = StopBits.One,
+                    Encoding = Encoding.UTF8,
 
                     ReadTimeout = 500,
                     WriteTimeout = 500
                 };
 
-                try
-                {
-                    _serialPort.Open();
-                }
-                catch (IOException)
-                {
-                    success = false;
-                }
-
+                _serialPort.Open();
             }
-            catch (UnauthorizedAccessException ex)
+            catch (Exception)
             {
                 success = false;
             }
@@ -67,11 +60,16 @@ namespace ShapeClipController
             return true;
         }
 
-        public bool Send(string message)
+        public bool SendAndRead(string message)
         {
             var readThread = new Thread(Read);
             readThread.Start(); // Shuts down automatically as reads only until we don't get anything
 
+            return Send(message);
+        }
+
+        public bool Send(string message)
+        {
             var success = true;
 
             _serialPort.ErrorReceived += (sender, args) => success = false;

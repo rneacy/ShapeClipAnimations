@@ -35,9 +35,9 @@
             this.comPortLabel = new System.Windows.Forms.Label();
             this.comSelectBox = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.serialPortRefreshButton = new System.Windows.Forms.Button();
             this.uploadButton = new System.Windows.Forms.Button();
             this.toggleButton = new System.Windows.Forms.Button();
-            this.serialPortRefreshButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -122,6 +122,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Control Options";
             // 
+            // serialPortRefreshButton
+            // 
+            this.serialPortRefreshButton.Location = new System.Drawing.Point(181, 593);
+            this.serialPortRefreshButton.Name = "serialPortRefreshButton";
+            this.serialPortRefreshButton.Size = new System.Drawing.Size(70, 23);
+            this.serialPortRefreshButton.TabIndex = 5;
+            this.serialPortRefreshButton.Text = "Refresh";
+            this.serialPortRefreshButton.UseVisualStyleBackColor = true;
+            this.serialPortRefreshButton.Click += new System.EventHandler(this.serialPortRefreshButton_Click);
+            // 
             // uploadButton
             // 
             this.uploadButton.Enabled = false;
@@ -146,16 +156,6 @@
             this.toggleButton.UseVisualStyleBackColor = true;
             this.toggleButton.Click += new System.EventHandler(this.toggleButton_Click);
             // 
-            // serialPortRefreshButton
-            // 
-            this.serialPortRefreshButton.Location = new System.Drawing.Point(181, 593);
-            this.serialPortRefreshButton.Name = "serialPortRefreshButton";
-            this.serialPortRefreshButton.Size = new System.Drawing.Size(70, 23);
-            this.serialPortRefreshButton.TabIndex = 5;
-            this.serialPortRefreshButton.Text = "Refresh";
-            this.serialPortRefreshButton.UseVisualStyleBackColor = true;
-            this.serialPortRefreshButton.Click += new System.EventHandler(this.serialPortRefreshButton_Click);
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -169,7 +169,7 @@
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = Properties.Resources.TITLEBAR_MAIN + " | " + Properties.Resources.TITLEBAR_NOPORT;
+            this.Text = "ShapeClip Controller | No Connected Clip";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();

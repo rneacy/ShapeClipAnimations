@@ -79,7 +79,7 @@ namespace ShapeClipController
                 var sent = false;
                 if(serial.Open())
                 {
-                    sent = serial.Send(_loadedAnims[selected + ".sca"]);
+                    sent = serial.SendAndRead(_loadedAnims[selected + ".sca"]);
                     
                     while (serial.Reading) { }
 
