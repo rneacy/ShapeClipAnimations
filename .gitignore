@@ -3,6 +3,7 @@
 docs/*
 .gitattributes
 adl
+*.code-workspace
 
 *.hex
 
