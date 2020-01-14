@@ -71,25 +71,54 @@ namespace ShapeClipController
             if (!selected.Equals(""))
             {
                 uploadButton.Enabled = false;
-                uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
-                var port = comSelectBox.SelectedItem.ToString();
-                var serial = new Serial(port);
-
-                var sent = false;
-                if(serial.Open())
+                uploadButton.Text = Properties.Resources.UPLOADBTN_VERIFYING;
+                if (Util.VerifySCA(_loadedAnims[selected + ".sca"]))
                 {
-                    sent = serial.SendAndRead(_loadedAnims[selected + ".sca"]);
-                    
-                    while (serial.Reading) { }
+                    uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
-                    serial.Close();
+                    var port = comSelectBox.SelectedItem.ToString();
+                    var serial = new Serial(port)
+                    {
+                        ExplicitClose = true
+                    };
+
+                    var sent = false;
+                    if (serial.Open())
+                    {
+                        // Set the ShapeClip to Upload Mode.
+                        serial.SendAndRead(Properties.Resources.OP_UPLOAD);
+
+                        // The ShapeClip should acknowledge that we are trying to upload to it.
+                        // If serial timed out, for some reason the ShapeClip isn't responding.
+                        // Otherwise, send the animation over once ShapeClip is in Upload Mode.
+                        if (!serial.LastReadEmpty)
+                        {
+                            serial.SendAndRead(_loadedAnims[selected + ".sca"]);
+                            sent = true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("the clip didn't respond");
+                        }
+
+                        serial.Close();
+                    }
+
+                    if (!sent)
+                    {
+                        var title = "Oops!";
+                        var message = "Could not communicate with ShapeClip on port " + port + ".";
+                        var btns = MessageBoxButtons.OK;
+                        var icon = MessageBoxIcon.Error;
+
+                        MessageBox.Show(message, title, btns, icon);
+                    }
                 }
-
-                if (!sent)
+                else
                 {
                     var title = "Oops!";
-                    var message = "Could not communicate with ShapeClip on port " + port + ".";
+                    var message = "Your SCA file was incorrectly formatted.";
                     var btns = MessageBoxButtons.OK;
                     var icon = MessageBoxIcon.Error;
 

@@ -61,6 +61,24 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #.
+        /// </summary>
+        internal static string OP_EXEC {
+            get {
+                return ResourceManager.GetString("OP_EXEC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to @.
+        /// </summary>
+        internal static string OP_UPLOAD {
+            get {
+                return ResourceManager.GetString("OP_UPLOAD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ShapeClip Controller.
         /// </summary>
         internal static string TITLEBAR_MAIN {
@@ -111,6 +129,15 @@ namespace ShapeClipController.Properties {
         internal static string UPLOADBTN_UPLOADING {
             get {
                 return ResourceManager.GetString("UPLOADBTN_UPLOADING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VERIFYING.
+        /// </summary>
+        internal static string UPLOADBTN_VERIFYING {
+            get {
+                return ResourceManager.GetString("UPLOADBTN_VERIFYING", resourceCulture);
             }
         }
     }

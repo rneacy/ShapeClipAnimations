@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="OP_EXEC" xml:space="preserve">
+    <value>#</value>
+  </data>
+  <data name="OP_UPLOAD" xml:space="preserve">
+    <value>@</value>
+  </data>
   <data name="TITLEBAR_MAIN" xml:space="preserve">
     <value>ShapeClip Controller</value>
   </data>
@@ -134,5 +140,8 @@
   </data>
   <data name="UPLOADBTN_UPLOADING" xml:space="preserve">
     <value>UPLOADING</value>
+  </data>
+  <data name="UPLOADBTN_VERIFYING" xml:space="preserve">
+    <value>VERIFYING</value>
   </data>
 </root>

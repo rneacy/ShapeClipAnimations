@@ -15,13 +15,19 @@ namespace ShapeClipController
     {
         private SerialPort _serialPort;
 
+        public bool ExplicitClose { get; set; }
+
         public string Port { get; }
         public bool Reading { get; private set; }
+        public bool TimedOut { get; private set; }
+        public string LastRead { get; private set; }
+        public bool LastReadEmpty => LastRead.Equals("");
 
         public Serial(string port)
         {
             Port = port;
             Reading = false;
+            TimedOut = false;
         }
 
         public bool Open()
@@ -40,8 +46,8 @@ namespace ShapeClipController
                     StopBits = StopBits.One,
                     Encoding = Encoding.UTF8,
 
-                    ReadTimeout = 500,
-                    WriteTimeout = 500
+                    ReadTimeout = 1000,
+                    WriteTimeout = 1000
                 };
 
                 _serialPort.Open();
@@ -60,12 +66,13 @@ namespace ShapeClipController
             return true;
         }
 
-        public bool SendAndRead(string message)
+        public void SendAndRead(string message)
         {
-            var readThread = new Thread(Read);
-            readThread.Start(); // Shuts down automatically as reads only until we don't get anything
+            /*var readThread = new Thread(Read);
+            readThread.Start(); // Shuts down automatically as reads only until we don't get anything*/
 
-            return Send(message);
+            Send(message);
+            Read();
         }
 
         public bool Send(string message)
@@ -81,6 +88,7 @@ namespace ShapeClipController
         public void Read()
         {
             Reading = true;
+            LastRead = "";
 
             while (true)
             {
@@ -88,10 +96,12 @@ namespace ShapeClipController
                 {
                     string line = _serialPort.ReadLine();
                     Console.WriteLine(line);
+                    LastRead += line;
                 }
                 catch (TimeoutException)
                 {
-                    Close();
+                    TimedOut = true;
+                    if(!ExplicitClose) Close();
                     break;
                 }
             }

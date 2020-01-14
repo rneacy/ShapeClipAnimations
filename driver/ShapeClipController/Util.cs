@@ -38,5 +38,10 @@ namespace ShapeClipController
 
             return new [] {fileName, fileContent};
         }
+
+        public static bool VerifySCA(string file)
+        {
+            return true;
+        }
     }
 }
