@@ -21,8 +21,43 @@ void setup(){
 }
 
 void loop(){
-  Serial.println(sizeof(testAnimation) / sizeof(testAnimation[0]));
-  Serial.println(sizeof(testAnimation[0]) / sizeof(int));
+  playAnimation(testAnimation, sizeof(testAnimation) / sizeof(testAnimation[0]));
+  delay(5000);
+}
 
-  delay(2000);
+int motorCurrent = 0;
+
+void playAnimation(int animation[][5], int animSize){
+  delay(1000);
+
+  int animRow = 0;
+  
+  for(animRow; animRow < animSize); animRow++){
+    float height;
+    int d;
+
+    // Calculate height as percentage of the max motor steps.
+    if(animation[animRow][0] < 0) animation[animRow][0] = 0;
+    if(animation[animRow][0] > 100) animation[animRow][0] = 100;
+    height = (470 * ((float)animation[animRow][0] / 100));
+
+    // Wrap colour
+    animation[animRow][1] %= 256;
+    animation[animRow][2] %= 256;
+    animation[animRow][3] %= 256;
+
+    d = animation[animRow][4];
+
+    // Calculate difference between current motor height and the desired height, move motor, set LED
+    int nextPos = height - motorCurrent;
+    //led.setPixelColor(0, led.Color(animation[animRow][1], animation[animRow][2], animation[animRow][3]));
+    //led.show();
+    //stepper.step(nextPos);
+
+    delay(d * 1000);
+
+    motorCurrent = (animation[animRow][0] == 0) ? 0 : height;
+  }
+
+  //resetMotor();
 }

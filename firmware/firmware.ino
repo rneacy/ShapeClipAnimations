@@ -36,8 +36,6 @@ void setup() {
     Serial.begin(BAUD_RATE);
 
 	led.begin();
-	//led.setBrightness(128); // Half brightness, full brightness makes you go blind.
-	led.show();
 
 	resetMotor();
 }
@@ -79,7 +77,7 @@ void loop() {
 			//led.setPixelColor(0, led.Color(255, 127, 0)); // ORANGE (NOT UPLOADED)
 		}
 
-		// check here later for if the driver has asked for start, stop or reuploads
+		//* check here later for if the driver has asked for start, stop or reuploads
 		if(Serial.available() > 0){
 			char cmd = (char)Serial.read();
 			
@@ -99,43 +97,44 @@ void loop() {
 		led.show();
 	}
 	else{
-		delay(1000);
-  
-		// Play test animation
-		int animColumn = 0;
-		int animRow = 0;
-		
-		for(animRow; animRow < (sizeof(testAnimation) / sizeof(testAnimation[0])); animRow++){
-			float height;
-			int d;
-
-			// Calculate height as percentage of the max motor steps.
-			if(testAnimation[animRow][0] < 0) testAnimation[animRow][0] = 0;
-			if(testAnimation[animRow][0] > 100) testAnimation[animRow][0] = 100;
-			height = (MOTOR_STEPS * ((float)testAnimation[animRow][0] / 100));
-
-			// Wrap colour
-			testAnimation[animRow][1] %= 256;
-			testAnimation[animRow][2] %= 256;
-			testAnimation[animRow][3] %= 256;
-
-			d = testAnimation[animRow][4];
-
-			// Calculate difference between current motor height and the desired height, move motor, set LED
-			int nextPos = height - motorCurrent;
-			led.setPixelColor(0, led.Color(testAnimation[animRow][1], testAnimation[animRow][2], testAnimation[animRow][3]));
-			led.show();
-			stepper.step(nextPos);
-
-			delay(d * 1000);
-
-			motorCurrent = height;
-		}
-
-		//runningTest = false;
-
-		resetMotor();
+		playAnimation(testAnimation, sizeof(testAnimation) / sizeof(testAnimation[0]));
 	}
+}
+
+void playAnimation(int animation[][5], int animSize){
+	delay(1000);
+
+	int animRow = 0;
+	
+	//for(animRow; animRow < (sizeof(animation) / sizeof(animation[0])); animRow++){
+	for(animRow; animRow < animSize; animRow++){
+		float height;
+		int d;
+
+		// Calculate height as percentage of the max motor steps.
+		if(animation[animRow][0] < 0) animation[animRow][0] = 0;
+		if(animation[animRow][0] > 100) animation[animRow][0] = 100;
+		height = (MOTOR_STEPS * ((float)animation[animRow][0] / 100));
+
+		// Wrap colour
+		animation[animRow][1] %= 256;
+		animation[animRow][2] %= 256;
+		animation[animRow][3] %= 256;
+
+		d = animation[animRow][4];
+
+		// Calculate difference between current motor height and the desired height, move motor, set LED
+		int nextPos = height - motorCurrent;
+		led.setPixelColor(0, led.Color(animation[animRow][1], animation[animRow][2], animation[animRow][3]));
+		led.show();
+		stepper.step(nextPos);
+
+		delay(d * 1000);
+
+		motorCurrent = (animation[animRow][0] == 0) ? 0 : height;
+	}
+
+	resetMotor();
 }
 
 // Reset motor down to base.
