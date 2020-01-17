@@ -24,7 +24,7 @@ bool running = true;
 bool uploaded = false;		// If the user has uploaded an animation to the clip.
 
 /* TESTS */
-int testAnimation[3][5] = {100,255,0,0,1,50,0,255,0,1,0,0,0,255,1};
+int testAnimation[4][5] = {100,255,0,0,1, 50,0,255,0,1, 66,0,0,255,1, 50,255,178,243,3};
 bool runningTest = true;
 bool animDone = false;
 
@@ -36,8 +36,7 @@ void setup() {
     Serial.begin(BAUD_RATE);
 
 	led.begin();
-	led.setPixelColor(0, 255, 0, 0); // RED
-	led.setBrightness(128); // Half brightness, full brightness makes you go blind.
+	//led.setBrightness(128); // Half brightness, full brightness makes you go blind.
 	led.show();
 
 	resetMotor();
@@ -100,16 +99,13 @@ void loop() {
 		led.show();
 	}
 	else{
-    	led.setPixelColor(0, led.Color(0, 255, 0));
-		led.show();
 		delay(1000);
   
 		// Play test animation
 		int animColumn = 0;
 		int animRow = 0;
 		
-		//for(animRow; animRow < (sizeof(testAnimation) / sizeof(testAnimation[0])); animRow++){
-		for(animRow; animRow < 3; animRow++){
+		for(animRow; animRow < (sizeof(testAnimation) / sizeof(testAnimation[0])); animRow++){
 			float height;
 			int d;
 
@@ -127,9 +123,9 @@ void loop() {
 
 			// Calculate difference between current motor height and the desired height, move motor, set LED
 			int nextPos = height - motorCurrent;
-			stepper.step(nextPos);
 			led.setPixelColor(0, led.Color(testAnimation[animRow][1], testAnimation[animRow][2], testAnimation[animRow][3]));
 			led.show();
+			stepper.step(nextPos);
 
 			delay(d * 1000);
 
@@ -144,6 +140,9 @@ void loop() {
 
 // Reset motor down to base.
 void resetMotor(){
+  led.setPixelColor(0,0,0,0);
+  led.show();
+  
 	motorReady = false;
 
     stepper.setSpeed(MOTOR_SPEED);
