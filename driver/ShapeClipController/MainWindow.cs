@@ -97,10 +97,6 @@ namespace ShapeClipController
                             serial.SendAndRead(_loadedAnims[selected + ".sca"]);
                             sent = true;
                         }
-                        else
-                        {
-                            Console.WriteLine("the clip didn't respond");
-                        }
 
                         serial.Close();
                     }
