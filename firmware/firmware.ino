@@ -97,7 +97,6 @@ void loop() {
 			}
 		}
 
-		//* check here later for if the driver has asked for start, stop or reuploads
 		if(Serial.available() > 0){
 			String cmd = Serial.readString();
 			
@@ -155,7 +154,6 @@ void playAnimation(int animation[][5], int animSize){
 	}
 
 	resetMotor();
-	running = false;
 }
 
 // Reset motor down to base.
