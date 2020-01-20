@@ -2,12 +2,12 @@
 #include "Adafruit_NeoPixel.h"
 
 /* SERIAL SETTINGS */
-const int BAUD_RATE = 9600;       // Baud rate to use in serial comms.
+const int BAUD_RATE = 9600;       	// Baud rate to use in serial comms.
 
 /* MOTOR SETTINGS */
-const int MOTOR_STEPS = 470;      // Number of steps on the motor.
-const int MOTOR_SPEED = 80;       // Speed of the motor in RPM.
-int motorCurrent = 0;
+const int MOTOR_STEPS = 470;      	// Number of steps on the motor.
+const int MOTOR_SPEED = 80;       	// Speed of the motor in RPM.
+int motorCurrent = 0;				// Current position of the motor in steps.
 
 /* PINS */
 const int P_MOTOR_COIL_1_POS = 4;   // Coil 1 positive.
@@ -18,14 +18,20 @@ const int P_LED = A5;              	// Onboard LED.
 const int P_NEOPIXEL = 9;			// Neopixel LED.
 
 /* OPERATING PARAMS */
-const int APEX_DELAY = 1000;      // Time to wait in between up and downs.
-bool motorReady = false;    // If the motor has been set up.
-bool running = true;
-bool uploaded = false;		// If the user has uploaded an animation to the clip.
+#define ANIMATION_BUFFER_SIZE 256	// How big an animation is allowed to be.
+#define ANIMATION_NODE_LENGTH 5		// Defines how many sections there are to each animation 'row'.
+const int APEX_DELAY = 1000;      	// Time to wait in between up and downs.
+bool motorReady = false;    		// If the motor has been set up.
+bool running = true;				// If the uploaded animation should currently be playing.
+bool uploaded = false;				// If the user has uploaded an animation to the clip.
+
+/* ANIMATION DATA */
+int animation[ANIMATION_BUFFER_SIZE][ANIMATION_NODE_LENGTH];
+int animationLength = 0;
 
 /* TESTS */
 int testAnimation[4][5] = {100,255,0,0,1, 50,0,255,0,1, 66,0,0,255,1, 50,255,178,243,3};
-bool runningTest = true;
+bool runningTest = false;
 bool animDone = false;
 
 /* REQUIRED OBJECTS */
@@ -34,9 +40,7 @@ Adafruit_NeoPixel led (1, P_NEOPIXEL);
 
 void setup() {
     Serial.begin(BAUD_RATE);
-
 	led.begin();
-
 	resetMotor();
 }
 
@@ -44,25 +48,34 @@ void setup() {
 void waitForUpload(){
 	bool done = false;
 
-	led.setPixelColor(0, led.Color(173, 7, 255)); // PURPLE, AWAITING DRIVER
+	led.setPixelColor(0, led.Color(255, 255, 255)); // PURPLE, AWAITING DRIVER
 	led.show();
 
 	//? In future, add an upload timeout.
-	Serial.print("@"); // Acknowledge driver request.
+	Serial.write("@"); // Acknowledge driver request.
 	while(Serial.available() == 0); // Wait for the driver to send the serial.
 
-	led.setPixelColor(0, led.Color(173, 255, 255)); // CYAN, UPLOAD IN PROGRESS
+	led.setPixelColor(0, led.Color(255, 0, 0)); // CYAN, UPLOAD IN PROGRESS
 	led.show();
+
+	animation = {}; // Reset anim array
+	animationLength = 0;
 
 	// Being sent animation...
 	//! For now relies on correct formatting of the SCA file.
 	// Driver will automatically strip the file of its comments (eventually...)
 
-	int buff[256];
+	int animRow = 0;
+	int animColumn = 0;
 	while(Serial.available() > 0){
-		int current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .s.
+		int current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
+		animation[animRow][animColumn] = current;
+
+		animRow = (++animColumn % ANIMATION_NODE_LENGTH == 0) ? animRow + 1 : animRow;
+		animColumn %= ANIMATION_NODE_LENGTH;
 	}
 
+	animationLength = animRow;
 	uploaded = true;
 }
 
@@ -70,7 +83,7 @@ void loop() {
 	if(!runningTest){
 		if(uploaded){
 			if(running){
-				led.setPixelColor(0, ((motorReady) ? led.Color(0, 255, 0) : led.Color(255, 0, 0)));
+				playAnimation(animation, animationLength);
 			}
 		}
 		else{
@@ -79,15 +92,15 @@ void loop() {
 
 		//* check here later for if the driver has asked for start, stop or reuploads
 		if(Serial.available() > 0){
-			char cmd = (char)Serial.read();
+			String cmd = Serial.readString();
 			
 			// start/stop toggle
-			if(cmd == '#'){
+			if(cmd.equals("#")){
 				running = !running;
 			}
 
 			// reupload trigger
-			if(cmd == '@'){
+			if(cmd.equals("@")){
 				uploaded = false;
 				running = false;
 				waitForUpload();
@@ -106,7 +119,6 @@ void playAnimation(int animation[][5], int animSize){
 
 	int animRow = 0;
 	
-	//for(animRow; animRow < (sizeof(animation) / sizeof(animation[0])); animRow++){
 	for(animRow; animRow < animSize; animRow++){
 		float height;
 		int d;
@@ -135,6 +147,7 @@ void playAnimation(int animation[][5], int animSize){
 	}
 
 	resetMotor();
+	running = false;
 }
 
 // Reset motor down to base.
