@@ -2,7 +2,7 @@
 .vscode
 docs/*
 .gitattributes
-adl
+*.sca
 *.code-workspace
 
 *.hex
