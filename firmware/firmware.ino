@@ -117,15 +117,15 @@ void loop() {
 		led.show();
 	}
 	else{
+		led.setPixelColor(0, 0, 0, 0);
+		led.show();
+		delay(1000);
+
 		playAnimation(testAnimation, sizeof(testAnimation) / sizeof(testAnimation[0]));
 	}
 }
 
 void playAnimation(int animation[][5], int animSize){
-	led.setPixelColor(0, 0, 0, 0);
-	led.show();
-	delay(1000);
-	
 	int animRow = 0;
 	for(animRow; animRow < animSize; animRow++){
 		float height;
