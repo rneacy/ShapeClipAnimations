@@ -82,12 +82,12 @@
             // animationList
             // 
             this.animationList.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.animationList.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.animationList.Font = new System.Drawing.Font("Microsoft Sans Serif", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.animationList.FormattingEnabled = true;
-            this.animationList.ItemHeight = 20;
+            this.animationList.ItemHeight = 39;
             this.animationList.Location = new System.Drawing.Point(12, 20);
             this.animationList.Name = "animationList";
-            this.animationList.Size = new System.Drawing.Size(694, 544);
+            this.animationList.Size = new System.Drawing.Size(694, 511);
             this.animationList.TabIndex = 0;
             this.animationList.SelectedIndexChanged += new System.EventHandler(this.animationList_SelectedIndexChanged);
             // 

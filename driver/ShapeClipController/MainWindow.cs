@@ -45,26 +45,26 @@ namespace ShapeClipController
 
         private void addAnimButton_Click(object sender, EventArgs e)
         {
-            var file = Util.OpenSCA();
+            var files = Util.OpenSCA();
 
-            if (!file[0].Equals(""))
+            foreach (var file in files)
             {
-                if (!animationList.Items.Contains(file[0]))
+                if (!file[0].Equals(""))
                 {
-                    var item = file[0];
-                    var regex = Regex.Match(item, "^.*(?=(\\.sca))");
+                    if (!animationList.Items.Contains(file[0]))
+                    {
+                        animationList.Items.Add(file[0]);
+                        _loadedAnims.Add(file[0], file[1]);
+                    }
+                    else
+                    {
+                        var title = "Oops!";
+                        var message = "You've already added animation '" + file[0] + "'.";
+                        var btns = MessageBoxButtons.OK;
+                        var icon = MessageBoxIcon.Exclamation;
 
-                    animationList.Items.Add(regex.Value);
-                    _loadedAnims.Add(file[0], file[1]);
-                }
-                else
-                {
-                    var title = "Oops!";
-                    var message = "You've already added animation '" + file[0] + "'.";
-                    var btns = MessageBoxButtons.OK;
-                    var icon = MessageBoxIcon.Exclamation;
-
-                    MessageBox.Show(message, title, btns, icon);
+                        MessageBox.Show(message, title, btns, icon);
+                    }
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace ShapeClipController
                 uploadButton.Enabled = false;
 
                 uploadButton.Text = Properties.Resources.UPLOADBTN_VERIFYING;
-                if (Util.VerifySCA(_loadedAnims[selected + ".sca"]))
+                if (Util.VerifySCA(_loadedAnims[selected]))
                 {
                     uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
@@ -148,7 +148,7 @@ namespace ShapeClipController
         private void removeAnimButton_Click(object sender, EventArgs e)
         {
             string selected = animationList.SelectedItem.ToString();
-            _loadedAnims.Remove(selected + ".sca");
+            _loadedAnims.Remove(selected);
             animationList.Items.RemoveAt(animationList.SelectedIndex);
         }
 
@@ -191,7 +191,7 @@ namespace ShapeClipController
 
             if (serial.Open())
             {
-                serial.Send(_loadedAnims[_selectedFile + ".sca"]);
+                serial.Send(_loadedAnims[_selectedFile]);
                 serial.Close();
 
                 toggleButton.Enabled = true;

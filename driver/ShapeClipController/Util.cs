@@ -5,16 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace ShapeClipController
 {
     static class Util
     {
-        public static string[] OpenSCA()
+        public static List<string[]> OpenSCA()
         {
             var fileName = string.Empty;
             var fileContent = string.Empty;
+
+            var loadedAnimations = new List<string[]>();
 
             // Opens a file and returns the contents as a string.
             using (var openFileDialog = new OpenFileDialog())
@@ -23,20 +26,26 @@ namespace ShapeClipController
                 openFileDialog.DefaultExt = ".sca";
                 openFileDialog.Filter = "ShapeClip Animation | *.sca";
                 openFileDialog.Title = "Open Animation";
+                openFileDialog.Multiselect = true;
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    var fileStream = openFileDialog.OpenFile();
-                    fileName = openFileDialog.SafeFileName;
-
-                    using (var reader = new StreamReader(fileStream))
+                    foreach (string file in openFileDialog.FileNames)
                     {
-                        fileContent = reader.ReadToEnd();
+                        var fileStream = File.Open(file, FileMode.Open);
+                        fileName = Path.GetFileNameWithoutExtension(file);
+
+                        using (var reader = new StreamReader(fileStream))
+                        {
+                            fileContent = reader.ReadToEnd();
+                        }
+
+                        loadedAnimations.Add( new [] { fileName, fileContent });
                     }
                 }
             }
 
-            return new [] {fileName, fileContent};
+            return loadedAnimations;
         }
 
         public static bool VerifySCA(string file)
