@@ -147,10 +147,17 @@ void playAnimation(int animation[][5], int animSize){
 		led.setPixelColor(0, led.Color(animation[animRow][1], animation[animRow][2], animation[animRow][3]));
 		led.show();
 		stepper.step(nextPos);
+		motorCurrent = (animation[animRow][0] == 0) ? 0 : height;
 
 		delay(d * 1000);
 
-		motorCurrent = (animation[animRow][0] == 0) ? 0 : height;
+		if(Serial.available() > 0){
+			String cmd = Serial.readString();
+			if(cmd.equals("#")){
+				running = false;
+				break;
+			}
+		}
 	}
 
 	resetMotor();
