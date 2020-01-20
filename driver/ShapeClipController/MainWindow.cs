@@ -45,7 +45,7 @@ namespace ShapeClipController
 
         private void addAnimButton_Click(object sender, EventArgs e)
         {
-            var files = Util.OpenSCA();
+            var files = Sca.OpenSca();
 
             foreach (var file in files)
             {
@@ -83,7 +83,7 @@ namespace ShapeClipController
                 uploadButton.Enabled = false;
 
                 uploadButton.Text = Properties.Resources.UPLOADBTN_VERIFYING;
-                if (Util.VerifySCA(_loadedAnims[selected]))
+                if (Sca.VerifySca(_loadedAnims[selected]))
                 {
                     uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
