@@ -140,5 +140,14 @@ namespace ShapeClipController.Properties {
                 return ResourceManager.GetString("UPLOADBTN_VERIFYING", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WAITING.
+        /// </summary>
+        internal static string UPLOADBTN_WAITING {
+            get {
+                return ResourceManager.GetString("UPLOADBTN_WAITING", resourceCulture);
+            }
+        }
     }
 }

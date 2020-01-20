@@ -8,6 +8,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ShapeClipController
 {
@@ -46,7 +47,7 @@ namespace ShapeClipController
                     StopBits = StopBits.One,
                     Encoding = Encoding.UTF8,
 
-                    ReadTimeout = 1000,
+                    ReadTimeout = 5000,
                     WriteTimeout = 1000
                 };
 
@@ -55,6 +56,13 @@ namespace ShapeClipController
             catch (Exception)
             {
                 success = false;
+
+                var title = "Oops!";
+                var message = "Could not establish connection.";
+                var btns = MessageBoxButtons.OK;
+                var icon = MessageBoxIcon.Error;
+
+                MessageBox.Show(message, title, btns, icon);
             }
 
             return success;
@@ -80,7 +88,7 @@ namespace ShapeClipController
             var success = true;
 
             _serialPort.ErrorReceived += (sender, args) => success = false;
-            _serialPort.WriteLine(message);
+            _serialPort.Write(message);
 
             return success;
         }

@@ -144,4 +144,7 @@
   <data name="UPLOADBTN_VERIFYING" xml:space="preserve">
     <value>VERIFYING</value>
   </data>
+  <data name="UPLOADBTN_WAITING" xml:space="preserve">
+    <value>WAITING</value>
+  </data>
 </root>

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.removeAnimButton = new System.Windows.Forms.Button();
             this.addAnimButton = new System.Windows.Forms.Button();
@@ -38,6 +39,7 @@
             this.serialPortRefreshButton = new System.Windows.Forms.Button();
             this.uploadButton = new System.Windows.Forms.Button();
             this.toggleButton = new System.Windows.Forms.Button();
+            this.serialMarshal = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -156,6 +158,11 @@
             this.toggleButton.UseVisualStyleBackColor = true;
             this.toggleButton.Click += new System.EventHandler(this.toggleButton_Click);
             // 
+            // serialMarshal
+            // 
+            this.serialMarshal.Interval = 1500;
+            this.serialMarshal.Tick += new System.EventHandler(this.serialMarshal_Tick);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -189,6 +196,7 @@
         private System.Windows.Forms.Label comPortLabel;
         private System.Windows.Forms.ComboBox comSelectBox;
         private System.Windows.Forms.Button serialPortRefreshButton;
+        private System.Windows.Forms.Timer serialMarshal;
     }
 }
 

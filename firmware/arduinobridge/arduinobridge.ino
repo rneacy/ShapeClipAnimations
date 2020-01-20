@@ -3,11 +3,14 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
 
   Serial.begin(9600);
-  //pinMode(0, INPUT);
-  //pinMode(1, INPUT);
+  pinMode(0, INPUT);
+  pinMode(1, INPUT);
 }
 
-int animRow = 0;
+void loop() {}
+
+
+/*int animRow = 0;
 int animColumn = 0;
 int animationLength = 0;
 int animation[256][5] = {};
@@ -25,7 +28,8 @@ void loop() {
 
   for(int i = 0; i < animationLength; i++){
     for(int j = 0; j < 5; j++){
-      Serial.println(animation[i][j]);
+      //Serial.println(animation[i][j]);
+      Serial.println(--animColumn);
     }
   }
-}
+}*/

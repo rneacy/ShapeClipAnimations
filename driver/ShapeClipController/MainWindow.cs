@@ -15,6 +15,8 @@ namespace ShapeClipController
 {
     public partial class MainWindow : Form
     {
+        private string Port => comSelectBox.SelectedItem.ToString();
+        private string _selectedFile;
         private int _toggleBtnState = 0;
         private Dictionary<string, string> _loadedAnims = new Dictionary<string, string>();
 
@@ -31,6 +33,14 @@ namespace ShapeClipController
             toggleButton.Text = (_toggleBtnState == 0)
                 ? Properties.Resources.TOGGLEBTN_START
                 : Properties.Resources.TOGGLEBTN_STOP;
+
+            var serial = new Serial(Port);
+
+            if (serial.Open())
+            {
+                serial.Send(Properties.Resources.OP_EXEC);
+                serial.Close();
+            }
         }
 
         private void addAnimButton_Click(object sender, EventArgs e)
@@ -77,8 +87,7 @@ namespace ShapeClipController
                 {
                     uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOADING;
 
-                    var port = comSelectBox.SelectedItem.ToString();
-                    var serial = new Serial(port)
+                    var serial = new Serial(Port)
                     {
                         ExplicitClose = true
                     };
@@ -87,20 +96,24 @@ namespace ShapeClipController
                     if (serial.Open())
                     {
                         // Set the ShapeClip to Upload Mode.
-                        serial.SendAndRead(Properties.Resources.OP_UPLOAD);
+                        serial.Send(Properties.Resources.OP_UPLOAD);
 
                         // The ShapeClip should acknowledge that we are trying to upload to it.
                         // If serial timed out, for some reason the ShapeClip isn't responding.
                         // Otherwise, send the animation over once ShapeClip is in Upload Mode.
-                        if (!serial.LastReadEmpty)
+                        /*
+                        if (serial.LastReadEmpty)
                         {
                             serial.SendAndRead(_loadedAnims[selected + ".sca"]);
                             sent = true;
-                        }
+                        }*/
 
                         serial.Close();
+                        serialMarshal.Start();
+                        _selectedFile = selected;
                     }
 
+                    /*
                     if (!sent)
                     {
                         var title = "Oops!";
@@ -109,7 +122,7 @@ namespace ShapeClipController
                         var icon = MessageBoxIcon.Error;
 
                         MessageBox.Show(message, title, btns, icon);
-                    }
+                    }*/
                 }
                 else
                 {
@@ -120,9 +133,6 @@ namespace ShapeClipController
 
                     MessageBox.Show(message, title, btns, icon);
                 }
-
-                uploadButton.Enabled = true;
-                uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOAD;
             }
             else
             {
@@ -171,6 +181,22 @@ namespace ShapeClipController
             {
                 Text = Properties.Resources.TITLEBAR_MAIN + " | " + Properties.Resources.TITLEBAR_NOPORT;
                 addAnimButton.Enabled = false;
+            }
+        }
+
+        private void serialMarshal_Tick(object sender, EventArgs e)
+        {
+            serialMarshal.Stop();
+            var serial = new Serial(Port);
+
+            if (serial.Open())
+            {
+                serial.Send(_loadedAnims[_selectedFile + ".sca"]);
+                serial.Close();
+
+                toggleButton.Enabled = true;
+                uploadButton.Enabled = true;
+                uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOAD;
             }
         }
     }

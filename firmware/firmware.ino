@@ -18,7 +18,7 @@ const int P_LED = A5;              	// Onboard LED.
 const int P_NEOPIXEL = 9;			// Neopixel LED.
 
 /* OPERATING PARAMS */
-#define ANIMATION_BUFFER_SIZE 256	// How big an animation is allowed to be.
+#define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
 #define ANIMATION_NODE_LENGTH 5		// Defines how many sections there are to each animation 'row'.
 const int APEX_DELAY = 1000;      	// Time to wait in between up and downs.
 bool motorReady = false;    		// If the motor has been set up.
@@ -48,17 +48,16 @@ void setup() {
 void waitForUpload(){
 	bool done = false;
 
-	led.setPixelColor(0, led.Color(255, 255, 255)); // PURPLE, AWAITING DRIVER
+	led.setPixelColor(0, led.Color(203, 103, 235)); // PURPLE, AWAITING DRIVER
 	led.show();
 
 	//? In future, add an upload timeout.
-	Serial.write("@"); // Acknowledge driver request.
+	//Serial.write("@"); // Acknowledge driver request.
 	while(Serial.available() == 0); // Wait for the driver to send the serial.
 
-	led.setPixelColor(0, led.Color(255, 0, 0)); // CYAN, UPLOAD IN PROGRESS
+	led.setPixelColor(0, led.Color(255, 127, 0)); // ORANGE UPLOAD IN PROGRESS
 	led.show();
 
-	animation = {}; // Reset anim array
 	animationLength = 0;
 
 	// Being sent animation...
@@ -76,7 +75,18 @@ void waitForUpload(){
 	}
 
 	animationLength = animRow;
-	uploaded = true;
+	
+	// If file columns not multiple of 5 then automatically is not valid
+	if(--animColumn == 0){
+		uploaded = true;
+		led.setPixelColor(0, 0, 255, 0); // GREEN, OK
+		led.show();
+	}
+	else{
+		uploaded = false;
+		led.setPixelColor(0, 255, 0, 0); // RED, ERROR
+		led.show();
+	}
 }
 
 void loop() {
@@ -85,9 +95,6 @@ void loop() {
 			if(running){
 				playAnimation(animation, animationLength);
 			}
-		}
-		else{
-			//led.setPixelColor(0, led.Color(255, 127, 0)); // ORANGE (NOT UPLOADED)
 		}
 
 		//* check here later for if the driver has asked for start, stop or reuploads
@@ -115,10 +122,11 @@ void loop() {
 }
 
 void playAnimation(int animation[][5], int animSize){
+	led.setPixelColor(0, 0, 0, 0);
+	led.show();
 	delay(1000);
-
-	int animRow = 0;
 	
+	int animRow = 0;
 	for(animRow; animRow < animSize; animRow++){
 		float height;
 		int d;
@@ -152,8 +160,8 @@ void playAnimation(int animation[][5], int animSize){
 
 // Reset motor down to base.
 void resetMotor(){
-  led.setPixelColor(0,0,0,0);
-  led.show();
+  	led.setPixelColor(0,0,0,0);
+  	led.show();
   
 	motorReady = false;
 
@@ -161,7 +169,6 @@ void resetMotor(){
 	stepper.step(-MOTOR_STEPS);
 
 	motorCurrent = 0;
-
 	motorReady = true;
 }
 
