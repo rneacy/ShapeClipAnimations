@@ -6,7 +6,7 @@ const int BAUD_RATE = 9600;       	// Baud rate to use in serial comms.
 
 /* MOTOR SETTINGS */
 const int MOTOR_STEPS = 470;      	// Number of steps on the motor.
-const int MOTOR_SPEED = 80;       	// Speed of the motor in RPM.
+const int MOTOR_SPEED = 100;       	// Speed of the motor in RPM.
 int motorCurrent = 0;				// Current position of the motor in steps.
 
 /* PINS */
@@ -19,7 +19,7 @@ const int P_NEOPIXEL = 9;			// Neopixel LED.
 
 /* OPERATING PARAMS */
 #define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
-#define ANIMATION_NODE_LENGTH 5		// Defines how many sections there are to each animation 'row'.
+#define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'.
 const int APEX_DELAY = 1000;      	// Time to wait in between up and downs.
 bool motorReady = false;    		// If the motor has been set up.
 bool running = true;				// If the uploaded animation should currently be playing.
@@ -30,7 +30,7 @@ int animation[ANIMATION_BUFFER_SIZE][ANIMATION_NODE_LENGTH];
 int animationLength = 0;
 
 /* TESTS */
-int testAnimation[4][5] = {100,255,0,0,1, 50,0,255,0,1, 66,0,0,255,1, 50,255,178,243,3};
+int testAnimation[4][6] = {100,100,255,0,0,1000, 50,100,0,255,0,500, 66,100,0,0,255,800, 50,100,255,178,243,2000};
 bool runningTest = false;
 bool animDone = false;
 
@@ -76,7 +76,7 @@ void waitForUpload(){
 
 	animationLength = animRow;
 	
-	// If file columns not multiple of 5 then automatically is not valid
+	// If file columns not multiple of ANIMATION_NODE_LENGTH then automatically is not valid
 	if(--animColumn == 0){
 		uploaded = true;
 		led.setPixelColor(0, 0, 255, 0); // GREEN, OK
@@ -124,7 +124,7 @@ void loop() {
 	}
 }
 
-void playAnimation(int animation[][5], int animSize){
+void playAnimation(int animation[][6], int animSize){
 	int animRow = 0;
 	for(animRow; animRow < animSize; animRow++){
 		float height;
@@ -135,22 +135,24 @@ void playAnimation(int animation[][5], int animSize){
 		if(animation[animRow][0] > 100) animation[animRow][0] = 100;
 		height = (MOTOR_STEPS * ((float)animation[animRow][0] / 100));
 
+		if(animation[animRow][1] < 0 || animation[animRow][1] > 100) animation[animRow][1] = 100;
+
 		// Wrap colour
-		animation[animRow][1] %= 256;
 		animation[animRow][2] %= 256;
 		animation[animRow][3] %= 256;
+		animation[animRow][4] %= 256;
 
-		d = animation[animRow][4];
+		d = animation[animRow][5];
 
 		// Calculate difference between current motor height and the desired height, move motor, set LED
 		int nextPos = height - motorCurrent;
-		led.setPixelColor(0, led.Color(animation[animRow][1], animation[animRow][2], animation[animRow][3]));
+		led.setPixelColor(0, led.Color(animation[animRow][2], animation[animRow][3], animation[animRow][4]));
 		led.show();
+		stepper.setSpeed(animation[animRow][1]);
 		stepper.step(nextPos);
 		motorCurrent = (animation[animRow][0] == 0) ? 0 : height;
 
-		delay(d * 1000);
-
+		// Check if the driver has requested the animation to stop.
 		if(Serial.available() > 0){
 			String cmd = Serial.readString();
 			if(cmd.equals("#")){
@@ -158,6 +160,8 @@ void playAnimation(int animation[][5], int animSize){
 				break;
 			}
 		}
+
+		delay(d);
 	}
 
 	resetMotor();
@@ -175,6 +179,11 @@ void resetMotor(){
 
 	motorCurrent = 0;
 	motorReady = true;
+
+	if(uploaded){
+		led.setPixelColor(0, 0, 255, 0); // GREEN, OK
+		led.show();
+	}
 }
 
 // still blocking but doesn't matter lol
