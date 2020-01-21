@@ -92,7 +92,6 @@ namespace ShapeClipController
                         ExplicitClose = true
                     };
 
-                    var sent = false;
                     if (serial.Open())
                     {
                         // Set the ShapeClip to Upload Mode.
@@ -104,7 +103,7 @@ namespace ShapeClipController
                         /*
                         if (serial.LastReadEmpty)
                         {
-                            serial.SendAndRead(_loadedAnims[selected + ".sca"]);
+                            serial.SendAndRead(_loadedAnims[selected], false);
                             sent = true;
                         }*/
 
@@ -112,17 +111,6 @@ namespace ShapeClipController
                         serialMarshal.Start();
                         _selectedFile = selected;
                     }
-
-                    /*
-                    if (!sent)
-                    {
-                        var title = "Oops!";
-                        var message = "Could not communicate with ShapeClip on port " + port + ".";
-                        var btns = MessageBoxButtons.OK;
-                        var icon = MessageBoxIcon.Error;
-
-                        MessageBox.Show(message, title, btns, icon);
-                    }*/
                 }
                 else
                 {
@@ -165,7 +153,6 @@ namespace ShapeClipController
         private void GetSerialPorts()
         {
             var ports = Serial.GetSerialPorts();
-
             if (ports.Length != 0)
             {
                 foreach (string port in ports)
@@ -174,7 +161,6 @@ namespace ShapeClipController
                 }
 
                 comSelectBox.SelectedItem = comSelectBox.Items[0];
-
                 addAnimButton.Enabled = true;
             }
             else
@@ -187,8 +173,8 @@ namespace ShapeClipController
         private void serialMarshal_Tick(object sender, EventArgs e)
         {
             serialMarshal.Stop();
-            var serial = new Serial(Port);
 
+            var serial = new Serial(Port);
             if (serial.Open())
             {
                 serial.Send(_loadedAnims[_selectedFile]);

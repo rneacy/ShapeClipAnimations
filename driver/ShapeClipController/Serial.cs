@@ -74,13 +74,19 @@ namespace ShapeClipController
             return true;
         }
 
-        public void SendAndRead(string message)
+        public void SendAndRead(string message, bool async)
         {
-            /*var readThread = new Thread(Read);
-            readThread.Start(); // Shuts down automatically as reads only until we don't get anything*/
-
             Send(message);
-            Read();
+
+            if (!async)
+            {
+                Read();
+            }
+            else
+            {
+                var readThread = new Thread(Read);
+                readThread.Start(); // Shuts down automatically as reads only until we don't get anything
+            }
         }
 
         public bool Send(string message)

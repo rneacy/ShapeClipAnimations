@@ -60,7 +60,7 @@
             // 
             this.removeAnimButton.Enabled = false;
             this.removeAnimButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.removeAnimButton.Location = new System.Drawing.Point(508, 570);
+            this.removeAnimButton.Location = new System.Drawing.Point(508, 553);
             this.removeAnimButton.Name = "removeAnimButton";
             this.removeAnimButton.Size = new System.Drawing.Size(198, 63);
             this.removeAnimButton.TabIndex = 2;
@@ -71,7 +71,7 @@
             // addAnimButton
             // 
             this.addAnimButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addAnimButton.Location = new System.Drawing.Point(12, 570);
+            this.addAnimButton.Location = new System.Drawing.Point(12, 553);
             this.addAnimButton.Name = "addAnimButton";
             this.addAnimButton.Size = new System.Drawing.Size(198, 63);
             this.addAnimButton.TabIndex = 1;
