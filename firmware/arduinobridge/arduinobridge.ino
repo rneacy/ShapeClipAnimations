@@ -9,7 +9,6 @@ void setup() {
 
 void loop() {}
 
-
 /*int animRow = 0;
 int animColumn = 0;
 int animationLength = 0;
