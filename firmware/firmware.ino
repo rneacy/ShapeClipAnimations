@@ -22,7 +22,7 @@ int motorCurrent = 0;			// Current position of the motor in steps.
 
 /* OPERATING PARAMS */
 #define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
-#define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'.
+#define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'
 #define ANIMATION_HEIGHT_NODE 0		// Part of an SCA node referring to height (%).
 #define ANIMATION_SPEED_NODE 1		// Part of an SCA node referring to speed (%).
 #define ANIMATION_COLOUR_NODE 2		// Part of an SCA node referring to R node of the RGB.
@@ -76,18 +76,44 @@ void waitForUpload(){
 
 	int animRow = 0;
 	int animColumn = 0;
+	bool relevant = false;
+	bool identifying = true;
+	int thisLine[ANIMATION_NODE_LENGTH];
+
 	while(Serial.available() > 0){
 		int current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
-		animation[animRow][animColumn] = current;
 
-		animRow = (++animColumn % ANIMATION_NODE_LENGTH == 0) ? animRow + 1 : animRow;
-		animColumn %= ANIMATION_NODE_LENGTH;
+		// Verify ShapeClip identity
+		if(identifying){
+			relevant = (current == identity);
+			identifying = false;
+			continue;
+		}
+		
+		//animation[animRow][animColumn] = current;
+		//animRow = (++animColumn % ANIMATION_NODE_LENGTH == 0) ? animRow + 1 : animRow; // array only stores what is relevant
+		//animColumn %= ANIMATION_NODE_LENGTH;
+
+		thisLine[animColumn] = current;
+		animColumn++;
+		
+		if((animColumn % ANIMATION_NODE_LENGTH) == 0){
+      		if(relevant){
+        		for(int i = 0; i < ANIMATION_NODE_LENGTH; i++){
+          			animation[animRow][i] = thisLine[i];
+        		}
+        		animRow++;
+      		}
+
+			animColumn = 0;
+      		identifying = true;
+		}
 	}
 
 	animationLength = animRow;
 	
-	// If file columns not multiple of ANIMATION_NODE_LENGTH then automatically is not valid
-	if(--animColumn == 0){
+	// If file columns not multiple of ANIMATION_NODE_LENGTH then automatically is not valid (was --animColumn)
+	if(animColumn == 0){
 		uploaded = true;
 		led.setPixelColor(0, 0, 255, 0); // GREEN, OK
 		led.show();
@@ -129,6 +155,8 @@ void loop() {
 				identity = extractedID.toInt();
 
 				if(identity > 0){
+					uploaded = false;
+					running = false;
 					waitForUpload();
 				}
 				else{
