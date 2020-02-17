@@ -7,7 +7,8 @@ void setup() {
   pinMode(1, INPUT);
 }
 
-void loop() {}
+void loop() {  
+}
 /*int identity = 1;
 int ANIMATION_NODE_LENGTH = 6;
 int animRow = 0;

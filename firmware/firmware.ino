@@ -26,18 +26,33 @@ int motorCurrent = 0;			// Current position of the motor in steps.
 #define ANIMATION_HEIGHT_NODE 0		// Part of an SCA node referring to height (%).
 #define ANIMATION_SPEED_NODE 1		// Part of an SCA node referring to speed (%).
 #define ANIMATION_COLOUR_NODE 2		// Part of an SCA node referring to R node of the RGB.
-#define ANIMATION_DELAY_NODE 5		// Part of an SCA node referring to time to wait until next anim execute (ms).
+#define ANIMATION_DELAY_NODE 5		// Part of an SCA node referring to absolute time that the animation node should run.
 bool motorReady = false;    		// If the motor has been set up.
 bool running = true;				// If the uploaded animation should currently be playing.
 bool uploaded = false;				// If the user has uploaded an animation to the clip.
 int identity;						// This clip's position in the chain.
 
 /* ANIMATION DATA */
-int animation[ANIMATION_BUFFER_SIZE][ANIMATION_NODE_LENGTH];
+//* Wrapper class for individual animation nodes.
+#pragma pack(1)
+typedef struct Node {
+	byte height;
+	byte speed;
+	byte r,g,b;
+	unsigned long time;
+};
+
+// Converts raw animation data into structured format for storage.
+Node rawToNode(unsigned long raw[ANIMATION_NODE_LENGTH]) {
+  return Node { raw[0], raw[1], raw[2], raw[3], raw[4], raw[5] };
+}
+
+//int animation[ANIMATION_BUFFER_SIZE][ANIMATION_NODE_LENGTH];
+Node animation[ANIMATION_BUFFER_SIZE];
 int animationLength = 0;
 
 /* TESTS */
-int testAnimation[4][6] = {100,100,255,0,0,1000, 50,100,0,255,0,500, 66,100,0,0,255,800, 50,100,255,178,243,2000};
+Node testAnimation[] = { Node{100,100,255,0,0,1000}, Node{50,100,0,255,0,500}, Node{66,100,0,0,255,800}, Node{50,100,255,178,243,2000} };
 bool runningTest = false;
 bool animDone = false;
 
@@ -56,7 +71,7 @@ void waitForUpload(){
 	bool done = false;
 
 	Serial.print(CONTROL_IDENTITY);
-	Serial.println(++identity, DEC); // let the next shapeclip (if there is one) where in the line it is
+	Serial.print(++identity, DEC); // let the next shapeclip (if there is one) where in the line it is
 
 	led.setPixelColor(0, led.Color(203, 103, 235)); // PURPLE, AWAITING DRIVER
 	led.show();
@@ -78,7 +93,7 @@ void waitForUpload(){
 	int animColumn = 0;
 	bool relevant = false;
 	bool identifying = true;
-	int thisLine[ANIMATION_NODE_LENGTH];
+	unsigned long thisLine[ANIMATION_NODE_LENGTH];
 
 	while(Serial.available() > 0){
 		int current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
@@ -87,26 +102,26 @@ void waitForUpload(){
 		if(identifying){
 			relevant = (current == identity);
 			identifying = false;
+			Serial.print(current); // forward identity
 			continue;
 		}
-		
-		//animation[animRow][animColumn] = current;
-		//animRow = (++animColumn % ANIMATION_NODE_LENGTH == 0) ? animRow + 1 : animRow; // array only stores what is relevant
-		//animColumn %= ANIMATION_NODE_LENGTH;
 
 		thisLine[animColumn] = current;
+		Serial.print(current); // forward literal to next clip
 		animColumn++;
 		
 		if((animColumn % ANIMATION_NODE_LENGTH) == 0){
+			Serial.print("."); // forward node separator
       		if(relevant){
-        		for(int i = 0; i < ANIMATION_NODE_LENGTH; i++){
-          			animation[animRow][i] = thisLine[i];
-        		}
+        		animation[animRow] = rawToNode(thisLine);
         		animRow++;
       		}
 
 			animColumn = 0;
       		identifying = true;
+		}
+		else{
+			Serial.print(":"); // forward section separator
 		}
 	}
 
@@ -134,11 +149,13 @@ void loop() {
 		}
 
 		if(Serial.available() > 0){
+			led.setPixelColor(0, 255, 255, 255);
 			String cmd = Serial.readString();
 			
 			// start/stop toggle
 			if(cmd.equals(CONTROL_PLAYSTOP)){
 				running = !running;
+				Serial.print(CONTROL_PLAYSTOP);
 			}
 
 			// reupload trigger
@@ -177,33 +194,33 @@ void loop() {
 	}
 }
 
-void playAnimation(int animation[][6], int animSize){
+void playAnimation(Node animation[], int animSize){
 	int animRow = 0;
 	for(animRow; animRow < animSize; animRow++){
 		float height;
-		int d;
+		unsigned long d;
 
 		// Calculate height as percentage of the max motor steps.
-		if(animation[animRow][ANIMATION_HEIGHT_NODE] < 0) animation[animRow][ANIMATION_HEIGHT_NODE] = 0;
-		if(animation[animRow][ANIMATION_HEIGHT_NODE] > 100) animation[animRow][ANIMATION_HEIGHT_NODE] = 100;
-		height = (MOTOR_STEPS * ((float)animation[animRow][0] / 100));
+		if(animation[animRow].height < 0) animation[animRow].height = 0;
+		if(animation[animRow].height > 100) animation[animRow].height = 100;
+		height = (MOTOR_STEPS * ((float)animation[animRow].height / 100));
 
-		if(animation[animRow][ANIMATION_SPEED_NODE] < 0 || animation[animRow][ANIMATION_SPEED_NODE] > MOTOR_SPEED) animation[animRow][ANIMATION_SPEED_NODE] = MOTOR_SPEED;
+		if(animation[animRow].speed < 0 || animation[animRow].speed > MOTOR_SPEED) animation[animRow].speed = MOTOR_SPEED;
 
 		// Wrap colour
-		animation[animRow][ANIMATION_COLOUR_NODE] %= 256;
-		animation[animRow][ANIMATION_COLOUR_NODE + 1] %= 256;
-		animation[animRow][ANIMATION_COLOUR_NODE + 2] %= 256;
+		animation[animRow].r %= 256;
+		animation[animRow].g %= 256;
+		animation[animRow].b %= 256;
 
-		d = animation[animRow][ANIMATION_DELAY_NODE];
+		d = animation[animRow].time;
 
 		// Calculate difference between current motor height and the desired height, move motor, set LED
 		int nextPos = height - motorCurrent;
-		led.setPixelColor(0, led.Color(animation[animRow][ANIMATION_COLOUR_NODE], animation[animRow][ANIMATION_COLOUR_NODE + 1], animation[animRow][ANIMATION_COLOUR_NODE + 2]));
+		led.setPixelColor(0, led.Color(animation[animRow].r, animation[animRow].g, animation[animRow].b));
 		led.show();
-		stepper.setSpeed(animation[animRow][ANIMATION_SPEED_NODE]);
+		stepper.setSpeed(animation[animRow].speed);
 		stepper.step(nextPos);
-		motorCurrent = (animation[animRow][ANIMATION_HEIGHT_NODE] == 0) ? 0 : height;
+		motorCurrent = (animation[animRow].height == 0) ? 0 : height;
 
 		// Check if the driver has requested the animation to stop.
 		if(Serial.available() > 0){
