@@ -25,7 +25,7 @@ int motorCurrent = 0;			// Current position of the motor in steps.
 #define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
 #define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'
 #define UNIVERSAL_START_DELAY 1000	// The baseline wait time when the user requests play to attempt to negate serial transfer time.
-#define SERIAL_TRANSFER_DELAY 50	// The approximate amount of extra delay between each clip.
+#define SERIAL_TRANSFER_DELAY 210	// The approximate amount of extra delay between each clip.
 bool motorReady = false;    		// If the motor has been set up.
 bool running = true;				// If the uploaded animation should currently be playing.
 bool uploaded = false;				// If the user has uploaded an animation to the clip.
