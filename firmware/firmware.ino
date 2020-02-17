@@ -103,6 +103,7 @@ void waitForUpload(){
 			relevant = (current == identity);
 			identifying = false;
 			Serial.print(current); // forward identity
+			Serial.print(":"); // forward section separator
 			continue;
 		}
 
@@ -196,9 +197,11 @@ void loop() {
 
 void playAnimation(Node animation[], int animSize){
 	int animRow = 0;
+	unsigned long startTime = millis();
+
 	for(animRow; animRow < animSize; animRow++){
 		float height;
-		unsigned long d;
+		unsigned long time;
 
 		// Calculate height as percentage of the max motor steps.
 		if(animation[animRow].height < 0) animation[animRow].height = 0;
@@ -207,15 +210,13 @@ void playAnimation(Node animation[], int animSize){
 
 		if(animation[animRow].speed < 0 || animation[animRow].speed > MOTOR_SPEED) animation[animRow].speed = MOTOR_SPEED;
 
-		// Wrap colour
-		animation[animRow].r %= 256;
-		animation[animRow].g %= 256;
-		animation[animRow].b %= 256;
-
-		d = animation[animRow].time;
+		time = animation[animRow].time + startTime;
 
 		// Calculate difference between current motor height and the desired height, move motor, set LED
 		int nextPos = height - motorCurrent;
+
+		while(!readyToGo(time)); //! for now just wait until it's ready; bad for non-ordered files, and is not async yet
+
 		led.setPixelColor(0, led.Color(animation[animRow].r, animation[animRow].g, animation[animRow].b));
 		led.show();
 		stepper.setSpeed(animation[animRow].speed);
@@ -230,11 +231,13 @@ void playAnimation(Node animation[], int animSize){
 				break;
 			}
 		}
-
-		delay(d);
 	}
 
 	resetMotor();
+}
+
+bool readyToGo(unsigned long requestedTime) {
+	return millis() >= requestedTime;
 }
 
 // Reset motor down to base.
