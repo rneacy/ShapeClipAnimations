@@ -3,6 +3,7 @@
 
 /* SERIAL SETTINGS */
 #define BAUD_RATE 9600       	// Baud rate to use in serial comms.
+#define TIMEOUT 200
 #define CONTROL_UPLOAD "@"
 #define CONTROL_PLAYSTOP "#"
 #define CONTROL_IDENTITY '$'
@@ -23,21 +24,33 @@ int motorCurrent = 0;			// Current position of the motor in steps.
 /* OPERATING PARAMS */
 #define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
 #define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'
-#define ANIMATION_HEIGHT_NODE 0		// Part of an SCA node referring to height (%).
-#define ANIMATION_SPEED_NODE 1		// Part of an SCA node referring to speed (%).
-#define ANIMATION_COLOUR_NODE 2		// Part of an SCA node referring to R node of the RGB.
-#define ANIMATION_DELAY_NODE 5		// Part of an SCA node referring to time to wait until next anim execute (ms).
+#define UNIVERSAL_START_DELAY 1000	// The baseline wait time when the user requests play to attempt to negate serial transfer time.
+#define SERIAL_TRANSFER_DELAY 50	// The approximate amount of extra delay between each clip.
 bool motorReady = false;    		// If the motor has been set up.
 bool running = true;				// If the uploaded animation should currently be playing.
 bool uploaded = false;				// If the user has uploaded an animation to the clip.
 int identity;						// This clip's position in the chain.
 
 /* ANIMATION DATA */
-int animation[ANIMATION_BUFFER_SIZE][ANIMATION_NODE_LENGTH];
+//* Wrapper class for individual animation nodes.
+#pragma pack(1)
+typedef struct Node {
+	byte height;
+	byte speed;
+	byte r,g,b;
+	unsigned long time;
+};
+
+// Converts raw animation data into structured format for storage.
+Node rawToNode(unsigned long raw[ANIMATION_NODE_LENGTH]) {
+  return Node { raw[0], raw[1], raw[2], raw[3], raw[4], raw[5] };
+}
+
+Node animation[ANIMATION_BUFFER_SIZE];
 int animationLength = 0;
 
 /* TESTS */
-int testAnimation[4][6] = {100,100,255,0,0,1000, 50,100,0,255,0,500, 66,100,0,0,255,800, 50,100,255,178,243,2000};
+Node testAnimation[] = { Node{100,100,255,0,0,1000}, Node{50,100,0,255,0,500}, Node{66,100,0,0,255,800}, Node{50,100,255,178,243,2000} };
 bool runningTest = false;
 bool animDone = false;
 
@@ -46,17 +59,21 @@ Stepper stepper (MOTOR_STEPS, P_MOTOR_COIL_1_POS, P_MOTOR_COIL_1_NEG, P_MOTOR_CO
 Adafruit_NeoPixel led (1, P_NEOPIXEL);
 
 void setup() {
+	Serial.setTimeout(TIMEOUT);
     Serial.begin(BAUD_RATE);
 	led.begin();
 	resetMotor();
 }
 
 // The ShapeClip will sit idle until the driver has uploaded an animation to it.
-void waitForUpload(){
+void waitForUpload(bool master){
 	bool done = false;
 
+	int nextClip = identity + 1;
+
 	Serial.print(CONTROL_IDENTITY);
-	Serial.println(++identity, DEC); // let the next shapeclip (if there is one) where in the line it is
+	Serial.print(nextClip, DEC); // let the next shapeclip (if there is one) where in the line it is
+	Serial.print("\0");
 
 	led.setPixelColor(0, led.Color(203, 103, 235)); // PURPLE, AWAITING DRIVER
 	led.show();
@@ -78,38 +95,47 @@ void waitForUpload(){
 	int animColumn = 0;
 	bool relevant = false;
 	bool identifying = true;
-	int thisLine[ANIMATION_NODE_LENGTH];
+	unsigned long thisLine[ANIMATION_NODE_LENGTH];
+	
+	// if master, wait until the driver doesn't send.
+	// if slave, wait until another clip sends the end of anim marker (-1)
+	while(Serial.available() > 0 || !master){
+		long current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
 
-	while(Serial.available() > 0){
-		int current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
+		if(!master && current == -1){
+			break;
+		}
 
 		// Verify ShapeClip identity
 		if(identifying){
 			relevant = (current == identity);
 			identifying = false;
+			//relevantFor = current;
+			Serial.print(current); // forward identity
+			Serial.print(":"); // forward section separator
 			continue;
 		}
-		
-		//animation[animRow][animColumn] = current;
-		//animRow = (++animColumn % ANIMATION_NODE_LENGTH == 0) ? animRow + 1 : animRow; // array only stores what is relevant
-		//animColumn %= ANIMATION_NODE_LENGTH;
 
 		thisLine[animColumn] = current;
+		Serial.print(current); // forward literal to next clip
 		animColumn++;
 		
 		if((animColumn % ANIMATION_NODE_LENGTH) == 0){
+			Serial.print("."); // forward node separator
       		if(relevant){
-        		for(int i = 0; i < ANIMATION_NODE_LENGTH; i++){
-          			animation[animRow][i] = thisLine[i];
-        		}
+        		animation[animRow] = rawToNode(thisLine);
         		animRow++;
       		}
 
 			animColumn = 0;
       		identifying = true;
 		}
+		else{
+			Serial.print(":"); // forward section separator
+		}
 	}
 
+	Serial.print(-1); // slave end
 	animationLength = animRow;
 	
 	// If file columns not multiple of ANIMATION_NODE_LENGTH then automatically is not valid (was --animColumn)
@@ -139,6 +165,11 @@ void loop() {
 			// start/stop toggle
 			if(cmd.equals(CONTROL_PLAYSTOP)){
 				running = !running;
+				Serial.print(CONTROL_PLAYSTOP);
+
+				// Wait the calculated delay to negate serial timings...
+				int t = identity - 1;
+				delay(UNIVERSAL_START_DELAY - (t * SERIAL_TRANSFER_DELAY));
 			}
 
 			// reupload trigger
@@ -146,7 +177,7 @@ void loop() {
 				identity = 1; // we can assume this as a shapeclip will never send an '@' itself
 				uploaded = false;
 				running = false;
-				waitForUpload();
+				waitForUpload(true);
 			}
 
 			// upload trigger from another ShapeClip ($2)
@@ -157,7 +188,7 @@ void loop() {
 				if(identity > 0){
 					uploaded = false;
 					running = false;
-					waitForUpload();
+					waitForUpload(false);
 				}
 				else{
 					led.setPixelColor(0, 255, 0, 0);
@@ -177,47 +208,56 @@ void loop() {
 	}
 }
 
-void playAnimation(int animation[][6], int animSize){
+void playAnimation(Node animation[], int animSize){
 	int animRow = 0;
+	unsigned long startTime = millis();
+
 	for(animRow; animRow < animSize; animRow++){
 		float height;
-		int d;
+		unsigned long time;
 
 		// Calculate height as percentage of the max motor steps.
-		if(animation[animRow][ANIMATION_HEIGHT_NODE] < 0) animation[animRow][ANIMATION_HEIGHT_NODE] = 0;
-		if(animation[animRow][ANIMATION_HEIGHT_NODE] > 100) animation[animRow][ANIMATION_HEIGHT_NODE] = 100;
-		height = (MOTOR_STEPS * ((float)animation[animRow][0] / 100));
+		if(animation[animRow].height < 0) animation[animRow].height = 0;
+		if(animation[animRow].height > 100) animation[animRow].height = 100;
+		height = (MOTOR_STEPS * ((float)animation[animRow].height / 100));
 
-		if(animation[animRow][ANIMATION_SPEED_NODE] < 0 || animation[animRow][ANIMATION_SPEED_NODE] > MOTOR_SPEED) animation[animRow][ANIMATION_SPEED_NODE] = MOTOR_SPEED;
+		if(animation[animRow].speed < 0 || animation[animRow].speed > MOTOR_SPEED) animation[animRow].speed = MOTOR_SPEED;
 
-		// Wrap colour
-		animation[animRow][ANIMATION_COLOUR_NODE] %= 256;
-		animation[animRow][ANIMATION_COLOUR_NODE + 1] %= 256;
-		animation[animRow][ANIMATION_COLOUR_NODE + 2] %= 256;
-
-		d = animation[animRow][ANIMATION_DELAY_NODE];
+		time = animation[animRow].time + startTime;
 
 		// Calculate difference between current motor height and the desired height, move motor, set LED
 		int nextPos = height - motorCurrent;
-		led.setPixelColor(0, led.Color(animation[animRow][ANIMATION_COLOUR_NODE], animation[animRow][ANIMATION_COLOUR_NODE + 1], animation[animRow][ANIMATION_COLOUR_NODE + 2]));
+
+		while(!readyToGo(time)); //! for now just wait until it's ready; bad for non-ordered files, and is not async yet
+
+		led.setPixelColor(0, led.Color(animation[animRow].r, animation[animRow].g, animation[animRow].b));
 		led.show();
-		stepper.setSpeed(animation[animRow][ANIMATION_SPEED_NODE]);
+		stepper.setSpeed(animation[animRow].speed);
 		stepper.step(nextPos);
-		motorCurrent = (animation[animRow][ANIMATION_HEIGHT_NODE] == 0) ? 0 : height;
+		motorCurrent = (animation[animRow].height == 0) ? 0 : height;
 
 		// Check if the driver has requested the animation to stop.
 		if(Serial.available() > 0){
 			String cmd = Serial.readString();
-			if(cmd.equals("#")){
+			if(cmd.equals(CONTROL_PLAYSTOP)){ // stop
 				running = false;
+				Serial.print(CONTROL_PLAYSTOP);
 				break;
 			}
+			if(cmd.equals("~")){ // pause
+				Serial.setTimeout(0xFFFFFFFFUL); // wait for 50 days for pause retoggle
+				Serial.readString().equals("~");
+				Serial.setTimeout(TIMEOUT);
+			}
 		}
-
-		delay(d);
 	}
 
 	resetMotor();
+}
+
+// Whether the requested time has been surpassed.
+bool readyToGo(unsigned long requestedTime) {
+	return millis() >= requestedTime;
 }
 
 // Reset motor down to base.

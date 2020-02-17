@@ -152,7 +152,8 @@ namespace ShapeClipController
 
         private void GetSerialPorts()
         {
-            var ports = Serial.GetSerialPorts();
+            var ports = Serial.SerialPorts;
+            comSelectBox.Items.Clear();
             if (ports.Length != 0)
             {
                 foreach (string port in ports)

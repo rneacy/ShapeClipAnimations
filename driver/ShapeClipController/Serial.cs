@@ -23,6 +23,7 @@ namespace ShapeClipController
         public bool TimedOut { get; private set; }
         public string LastRead { get; private set; }
         public bool LastReadEmpty => LastRead.Equals("");
+        public static string[] SerialPorts => SerialPort.GetPortNames();
 
         public Serial(string port)
         {
