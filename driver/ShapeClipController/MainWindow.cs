@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace ShapeClipController
     public partial class MainWindow : Form
     {
         private string Port => comSelectBox.SelectedItem.ToString();
+        private int IntendedClips => int.Parse(clipCountLabel.Text);
+        private int ConnectedClips => int.Parse(clipCountInput.Text);
         private string _selectedFile;
         private int _toggleBtnState = 0;
         private Dictionary<string, string> _loadedAnims = new Dictionary<string, string>();
@@ -24,6 +27,7 @@ namespace ShapeClipController
         {
             InitializeComponent();
             GetSerialPorts();
+            delayText.Text = DelayTime(int.Parse(clipCountInput.Text)).ToString() + "ms";
         }
 
         private void toggleButton_Click(object sender, EventArgs e)
@@ -33,6 +37,8 @@ namespace ShapeClipController
             toggleButton.Text = (_toggleBtnState == 0)
                 ? Properties.Resources.TOGGLEBTN_START
                 : Properties.Resources.TOGGLEBTN_STOP;
+
+            uploadButton.Enabled = (_toggleBtnState == 0);
 
             var serial = new Serial(Port);
 
@@ -71,8 +77,46 @@ namespace ShapeClipController
 
         private void animationList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            removeAnimButton.Enabled = (animationList.Items.Count != 0);
-            uploadButton.Enabled = removeAnimButton.Enabled;
+            string selected;
+            try
+            {
+                selected = animationList.SelectedItem.ToString();
+            }
+            catch (NullReferenceException ignored)
+            {
+                selected = "";
+            }
+
+            if (!selected.Equals(""))
+            {
+                removeAnimButton.Enabled = (animationList.Items.Count != 0);
+                uploadButton.Enabled = removeAnimButton.Enabled;
+
+                clipCountLabel.Text = calculateClipCount(_loadedAnims[selected]).ToString();
+            }
+            else
+            {
+                removeAnimButton.Enabled = false;
+                uploadButton.Enabled = false;
+                clipCountLabel.Text = "0";
+            }
+        }
+
+        private int calculateClipCount(string anim)
+        {
+            var lines = anim.Split('\n');
+            var highest = 0;
+            foreach (string node in lines)
+            {
+                var id = int.Parse(node.Split(':')[0]);
+
+                if (id > highest)
+                {
+                    highest = id;
+                }
+            }
+
+            return highest;
         }
 
         private void uploadButton_Click(object sender, EventArgs e)
@@ -81,6 +125,25 @@ namespace ShapeClipController
             if (!selected.Equals(""))
             {
                 uploadButton.Enabled = false;
+
+                if (IntendedClips > ConnectedClips)
+                {
+                    var title = "Not enough clips!";
+                    var message =
+                        "This animation specifies for " + IntendedClips +
+                        " clips, but you only have " + ConnectedClips +
+                        " connected.\n\nUpload anyway?";
+                    var btns = MessageBoxButtons.YesNo;
+                    var icon = MessageBoxIcon.Question;
+
+                    var result = MessageBox.Show(message, title, btns, icon);
+
+                    if (result == DialogResult.No)
+                    {
+                        uploadButton.Enabled = true;
+                        return;
+                    }
+                } 
 
                 uploadButton.Text = Properties.Resources.UPLOADBTN_VERIFYING;
                 if (Sca.VerifySca(_loadedAnims[selected]))
@@ -185,6 +248,23 @@ namespace ShapeClipController
                 uploadButton.Enabled = true;
                 uploadButton.Text = Properties.Resources.UPLOADBTN_UPLOAD;
             }
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private int DelayTime(int clips) => clips * 210;
+
+        private void clipCountInput_TextChanged(object sender, EventArgs e)
+        {
+            if(clipCountInput.Text.Length > 0) delayText.Text = DelayTime(int.Parse(clipCountInput.Text)).ToString() + "ms";
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }

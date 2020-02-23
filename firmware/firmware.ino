@@ -103,6 +103,9 @@ void waitForUpload(bool master){
 		long current = Serial.parseInt(); // Get next number stored in buffer. Should ignore the : and .
 
 		if(!master && current == -1){
+			// need to forward last part.
+			Serial.print(current);
+			Serial.print(".");
 			break;
 		}
 
@@ -139,16 +142,20 @@ void waitForUpload(bool master){
 	animationLength = animRow;
 	
 	// If file columns not multiple of ANIMATION_NODE_LENGTH then automatically is not valid (was --animColumn)
-	if(animColumn == 0){
+	/*if(animColumn == 0){
 		uploaded = true;
 		led.setPixelColor(0, 0, 255, 0); // GREEN, OK
 		led.show();
 	}
 	else{
 		uploaded = false;
-		led.setPixelColor(0, 255, 0, 0); // RED, ERROR
+		led.setPixelColor(0, 255, 0, 0); // RED, ERROR		
 		led.show();
-	}
+	}*/
+
+	uploaded = true;
+	led.setPixelColor(0, 0, 255, 0); // GREEN, OK
+	led.show();
 }
 
 void loop() {
