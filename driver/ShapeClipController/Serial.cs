@@ -18,6 +18,7 @@ namespace ShapeClipController
 
         public bool ExplicitClose { get; set; }
 
+        public int Baud { get; set; }
         public string Port { get; }
         public bool Reading { get; private set; }
         public bool TimedOut { get; private set; }
@@ -30,6 +31,7 @@ namespace ShapeClipController
             Port = port;
             Reading = false;
             TimedOut = false;
+            Baud = 9600;
         }
 
         public bool Open()
@@ -41,7 +43,7 @@ namespace ShapeClipController
             {
                 _serialPort = new SerialPort()
                 {
-                    BaudRate = 9600,
+                    BaudRate = Baud,
                     PortName = Port,
                     Parity   = Parity.None,
                     DataBits = 8,

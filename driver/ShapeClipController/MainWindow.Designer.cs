@@ -36,19 +36,24 @@
             this.comPortLabel = new System.Windows.Forms.Label();
             this.comSelectBox = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.serialPortRefreshButton = new System.Windows.Forms.Button();
+            this.delayText = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.uploadButton = new System.Windows.Forms.Button();
             this.toggleButton = new System.Windows.Forms.Button();
+            this.serialPortRefreshButton = new System.Windows.Forms.Button();
             this.serialMarshal = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.clipCountInput = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.animSizeLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.durationLabel = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.clipCountLabel = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.delayText = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.pauseButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -124,6 +129,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.pauseButton);
             this.groupBox2.Controls.Add(this.delayText);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.groupBox3);
@@ -136,15 +142,33 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Control Options";
             // 
-            // serialPortRefreshButton
+            // delayText
             // 
-            this.serialPortRefreshButton.Location = new System.Drawing.Point(176, 99);
-            this.serialPortRefreshButton.Name = "serialPortRefreshButton";
-            this.serialPortRefreshButton.Size = new System.Drawing.Size(70, 23);
-            this.serialPortRefreshButton.TabIndex = 5;
-            this.serialPortRefreshButton.Text = "Refresh";
-            this.serialPortRefreshButton.UseVisualStyleBackColor = true;
-            this.serialPortRefreshButton.Click += new System.EventHandler(this.serialPortRefreshButton_Click);
+            this.delayText.AutoSize = true;
+            this.delayText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.delayText.Location = new System.Drawing.Point(177, 118);
+            this.delayText.Name = "delayText";
+            this.delayText.Size = new System.Drawing.Size(42, 20);
+            this.delayText.TabIndex = 4;
+            this.delayText.Text = "0ms";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(59, 121);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(73, 13);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "Starting Delay";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Location = new System.Drawing.Point(153, 384);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(293, 255);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Clip Settings";
             // 
             // uploadButton
             // 
@@ -162,13 +186,23 @@
             // 
             this.toggleButton.Enabled = false;
             this.toggleButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.toggleButton.Location = new System.Drawing.Point(18, 36);
+            this.toggleButton.Location = new System.Drawing.Point(52, 38);
             this.toggleButton.Name = "toggleButton";
-            this.toggleButton.Size = new System.Drawing.Size(256, 76);
+            this.toggleButton.Size = new System.Drawing.Size(82, 76);
             this.toggleButton.TabIndex = 0;
-            this.toggleButton.Text = "START";
+            this.toggleButton.Text = " ▶";
             this.toggleButton.UseVisualStyleBackColor = true;
             this.toggleButton.Click += new System.EventHandler(this.toggleButton_Click);
+            // 
+            // serialPortRefreshButton
+            // 
+            this.serialPortRefreshButton.Location = new System.Drawing.Point(176, 99);
+            this.serialPortRefreshButton.Name = "serialPortRefreshButton";
+            this.serialPortRefreshButton.Size = new System.Drawing.Size(70, 23);
+            this.serialPortRefreshButton.TabIndex = 5;
+            this.serialPortRefreshButton.Text = "Refresh";
+            this.serialPortRefreshButton.UseVisualStyleBackColor = true;
+            this.serialPortRefreshButton.Click += new System.EventHandler(this.serialPortRefreshButton_Click);
             // 
             // serialMarshal
             // 
@@ -183,15 +217,6 @@
             this.label1.Size = new System.Drawing.Size(84, 13);
             this.label1.TabIndex = 6;
             this.label1.Text = "Connected Clips";
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Location = new System.Drawing.Point(153, 384);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(293, 255);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Clip Settings";
             // 
             // groupBox4
             // 
@@ -219,6 +244,10 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.animSizeLabel);
+            this.groupBox5.Controls.Add(this.label5);
+            this.groupBox5.Controls.Add(this.durationLabel);
+            this.groupBox5.Controls.Add(this.label4);
             this.groupBox5.Controls.Add(this.clipCountLabel);
             this.groupBox5.Controls.Add(this.label2);
             this.groupBox5.Location = new System.Drawing.Point(736, 13);
@@ -228,14 +257,44 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Animation Information";
             // 
-            // label2
+            // animSizeLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(44, 44);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(100, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Intended Clip Count";
+            this.animSizeLabel.AutoSize = true;
+            this.animSizeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.animSizeLabel.Location = new System.Drawing.Point(204, 122);
+            this.animSizeLabel.Name = "animSizeLabel";
+            this.animSizeLabel.Size = new System.Drawing.Size(29, 20);
+            this.animSizeLabel.TabIndex = 5;
+            this.animSizeLabel.Text = "10";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(65, 126);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(76, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Animation Size";
+            // 
+            // durationLabel
+            // 
+            this.durationLabel.AutoSize = true;
+            this.durationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.durationLabel.Location = new System.Drawing.Point(204, 82);
+            this.durationLabel.Name = "durationLabel";
+            this.durationLabel.Size = new System.Drawing.Size(38, 20);
+            this.durationLabel.TabIndex = 3;
+            this.durationLabel.Text = "23s";
+            this.durationLabel.Click += new System.EventHandler(this.durationLabel_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(58, 85);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(86, 13);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "Approx. Duration";
             // 
             // clipCountLabel
             // 
@@ -248,24 +307,26 @@
             this.clipCountLabel.Text = "0";
             this.clipCountLabel.Click += new System.EventHandler(this.label3_Click);
             // 
-            // label3
+            // label2
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(59, 121);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(73, 13);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Starting Delay";
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(44, 44);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(100, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Intended Clip Count";
             // 
-            // delayText
+            // pauseButton
             // 
-            this.delayText.AutoSize = true;
-            this.delayText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.delayText.Location = new System.Drawing.Point(177, 118);
-            this.delayText.Name = "delayText";
-            this.delayText.Size = new System.Drawing.Size(42, 20);
-            this.delayText.TabIndex = 4;
-            this.delayText.Text = "0ms";
+            this.pauseButton.Enabled = false;
+            this.pauseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.pauseButton.Location = new System.Drawing.Point(155, 38);
+            this.pauseButton.Name = "pauseButton";
+            this.pauseButton.Size = new System.Drawing.Size(82, 76);
+            this.pauseButton.TabIndex = 5;
+            this.pauseButton.Text = "II";
+            this.pauseButton.UseVisualStyleBackColor = true;
+            this.pauseButton.Click += new System.EventHandler(this.pauseButton_Click);
             // 
             // MainWindow
             // 
@@ -316,6 +377,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label delayText;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label animSizeLabel;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label durationLabel;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button pauseButton;
     }
 }
 

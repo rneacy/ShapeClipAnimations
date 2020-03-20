@@ -120,6 +120,9 @@
   <data name="OP_EXEC" xml:space="preserve">
     <value>#</value>
   </data>
+  <data name="OP_PAUSE" xml:space="preserve">
+    <value>~</value>
+  </data>
   <data name="OP_UPLOAD" xml:space="preserve">
     <value>@</value>
   </data>
@@ -130,10 +133,10 @@
     <value>No Connected Clip</value>
   </data>
   <data name="TOGGLEBTN_START" xml:space="preserve">
-    <value>START</value>
+    <value> ▶</value>
   </data>
   <data name="TOGGLEBTN_STOP" xml:space="preserve">
-    <value>STOP</value>
+    <value> ■</value>
   </data>
   <data name="UPLOADBTN_UPLOAD" xml:space="preserve">
     <value>UPLOAD</value>

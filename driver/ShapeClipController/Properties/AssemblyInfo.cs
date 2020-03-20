@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ShapeClipController")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ShapeClip Controller")]
+[assembly: AssemblyDescription("Make ya ShapeClips move")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ShapeClipController")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCompany("rneacy")]
+[assembly: AssemblyProduct("ShapeClip Controller")]
+[assembly: AssemblyCopyright("Copyright ©rneacy  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace ShapeClipController
 {
@@ -39,8 +40,12 @@ namespace ShapeClipController
                 : Properties.Resources.TOGGLEBTN_STOP;
 
             uploadButton.Enabled = (_toggleBtnState == 0);
+            pauseButton.Enabled = (_toggleBtnState == 1);
 
-            var serial = new Serial(Port);
+            var serial = new Serial(Port)
+            {
+                Baud = 9600
+            };
 
             if (serial.Open())
             {
@@ -82,7 +87,7 @@ namespace ShapeClipController
             {
                 selected = animationList.SelectedItem.ToString();
             }
-            catch (NullReferenceException ignored)
+            catch (NullReferenceException)
             {
                 selected = "";
             }
@@ -92,7 +97,9 @@ namespace ShapeClipController
                 removeAnimButton.Enabled = (animationList.Items.Count != 0);
                 uploadButton.Enabled = removeAnimButton.Enabled;
 
-                clipCountLabel.Text = calculateClipCount(_loadedAnims[selected]).ToString();
+                clipCountLabel.Text = CalculateClipCount(_loadedAnims[selected]).ToString();
+                animSizeLabel.Text = CalculateAnimSize(_loadedAnims[selected]).ToString();
+                durationLabel.Text = CalculateAnimDuration(_loadedAnims[selected]).ToString("##.#") + "s";
             }
             else
             {
@@ -102,21 +109,53 @@ namespace ShapeClipController
             }
         }
 
-        private int calculateClipCount(string anim)
-        {
-            var lines = anim.Split('\n');
-            var highest = 0;
-            foreach (string node in lines)
-            {
-                var id = int.Parse(node.Split(':')[0]);
+        private static int CalculateAnimSize(string anim) => anim.Split('\n').Length;
+        private static int CalculateClipCount(string anim) => anim.Split('\n').Max(el => int.Parse(el.Split(':')[0]));
 
-                if (id > highest)
+        private static double CalculateAnimDuration(string anim)
+        {
+            var maxMoveTime = 450d;
+
+            // calc for each node
+            var clips = Enumerable.Range(1, CalculateClipCount(anim));
+            var lines = anim.Split('\n');
+            var longest = 0d;
+
+            foreach (var clip in clips)
+            {
+                var clipTotalMillis = 0d;
+                var currentDelay = 0d;
+
+                // do for each time. if clip total millis is bigger than the delay of each one, then treat as consec
+                // i.e. don't add the delay on.
+                foreach (var node in lines)
                 {
-                    highest = id;
+                    var vals = node.Split(':');
+
+                    // if correct clip
+                    if (int.Parse(vals[0]) == clip)
+                    {
+                        var moveTime = maxMoveTime / (double.Parse(vals[2]) / 100);
+                        var delay = double.Parse(vals[6].Split('.')[0]);
+
+                        clipTotalMillis += moveTime;
+
+                        // 
+                        if ((int)currentDelay != (int)delay)
+                        {
+                            if ((int) delay > (int) clipTotalMillis)
+                            {
+                                clipTotalMillis += delay - currentDelay;
+                                currentDelay = clipTotalMillis;
+                            }
+                        }
+                    }
                 }
+
+                if (clipTotalMillis > longest) longest = clipTotalMillis;
             }
 
-            return highest;
+            return longest / 1000d;
         }
 
         private void uploadButton_Click(object sender, EventArgs e)
@@ -265,6 +304,25 @@ namespace ShapeClipController
         private void groupBox1_Enter(object sender, EventArgs e)
         {
 
+        }
+
+        private void durationLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e)
+        {
+            var serial = new Serial(Port)
+            {
+                Baud = 9600
+            };
+
+            if (serial.Open())
+            {
+                serial.Send(Properties.Resources.OP_PAUSE);
+                serial.Close();
+            }
         }
     }
 }

@@ -70,6 +70,15 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ~.
+        /// </summary>
+        internal static string OP_PAUSE {
+            get {
+                return ResourceManager.GetString("OP_PAUSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to @.
         /// </summary>
         internal static string OP_UPLOAD {
@@ -97,7 +106,7 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to START.
+        ///   Looks up a localized string similar to  ▶.
         /// </summary>
         internal static string TOGGLEBTN_START {
             get {
@@ -106,7 +115,7 @@ namespace ShapeClipController.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to STOP.
+        ///   Looks up a localized string similar to  ■.
         /// </summary>
         internal static string TOGGLEBTN_STOP {
             get {

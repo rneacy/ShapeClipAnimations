@@ -7,6 +7,7 @@
 #define CONTROL_UPLOAD "@"
 #define CONTROL_PLAYSTOP "#"
 #define CONTROL_IDENTITY '$'
+#define CONTROL_PAUSE "~"
 
 /* MOTOR SETTINGS */
 #define MOTOR_STEPS 470    		// Number of steps on the motor.
@@ -22,14 +23,16 @@ int motorCurrent = 0;			// Current position of the motor in steps.
 #define P_NEOPIXEL 9			// Neopixel LED.
 
 /* OPERATING PARAMS */
-#define ANIMATION_BUFFER_SIZE 128	// How big an animation is allowed to be.
+#define ANIMATION_BUFFER_SIZE 142	// How big an animation is allowed to be.
 #define ANIMATION_NODE_LENGTH 6		// Defines how many sections there are to each animation 'row'
 #define UNIVERSAL_START_DELAY 1000	// The baseline wait time when the user requests play to attempt to negate serial transfer time.
 #define SERIAL_TRANSFER_DELAY 210	// The approximate amount of extra delay between each clip.
+#define MAX_SPEED_APEX_TIME   850  // The approximate amount of time it takes for the motor to move from base to apex at max speed.
 bool motorReady = false;    		// If the motor has been set up.
 bool running = true;				// If the uploaded animation should currently be playing.
 bool uploaded = false;				// If the user has uploaded an animation to the clip.
 int identity;						// This clip's position in the chain.
+bool master;
 
 /* ANIMATION DATA */
 //* Wrapper class for individual animation nodes.
@@ -66,7 +69,7 @@ void setup() {
 }
 
 // The ShapeClip will sit idle until the driver has uploaded an animation to it.
-void waitForUpload(bool master){
+void waitForUpload(){
 	bool done = false;
 
 	int nextClip = identity + 1;
@@ -163,6 +166,7 @@ void loop() {
 		if(uploaded){
 			if(running){
 				playAnimation(animation, animationLength);
+				resetMotor();
 			}
 		}
 
@@ -184,7 +188,8 @@ void loop() {
 				identity = 1; // we can assume this as a shapeclip will never send an '@' itself
 				uploaded = false;
 				running = false;
-				waitForUpload(true);
+				master = true;
+				waitForUpload();
 			}
 
 			// upload trigger from another ShapeClip ($2)
@@ -195,7 +200,8 @@ void loop() {
 				if(identity > 0){
 					uploaded = false;
 					running = false;
-					waitForUpload(false);
+					master = false;
+					waitForUpload();
 				}
 				else{
 					led.setPixelColor(0, 255, 0, 0);
@@ -212,6 +218,7 @@ void loop() {
 		delay(1000);
 
 		playAnimation(testAnimation, sizeof(testAnimation) / sizeof(testAnimation[0]));
+		resetMotor();
 	}
 }
 
@@ -220,6 +227,45 @@ void playAnimation(Node animation[], int animSize){
 	unsigned long startTime = millis();
 
 	for(animRow; animRow < animSize; animRow++){
+		// Check if the driver has requested the animation to stop.
+		if(Serial.available() > 0){
+			String cmd = Serial.readString();
+			if(cmd.equals(CONTROL_PLAYSTOP)){ // stop
+				running = false;
+				Serial.print(CONTROL_PLAYSTOP);
+				break;
+			}
+			if(cmd.equals(CONTROL_PAUSE)) { // pause
+				Serial.print(CONTROL_PAUSE);
+        		unsigned long pauseStartMillis = millis();
+				// calculate how many nodes behind this node had gotten before the pause signal reached.
+				int propagationTime = ((identity - 1) * SERIAL_TRANSFER_DELAY);
+				int nodesPassed = (propagationTime / MAX_SPEED_APEX_TIME) + 2;
+				if(!master) nodesPassed++;
+
+				// go back as many nodes as passed
+				animRow -= nodesPassed;
+        		if(animRow < 0) {
+					animRow = animSize - abs(animRow); // wrap around
+				}
+				forceNodeExecute(animation[animRow]);
+
+				while (true) {
+					if(Serial.available() > 0) {
+						if (Serial.readString().equals(CONTROL_PAUSE)) {
+							Serial.print(CONTROL_PAUSE);
+							break;
+						}
+					}
+				}
+
+				// resync
+				int t = identity - 1;
+				delay(UNIVERSAL_START_DELAY - (t * SERIAL_TRANSFER_DELAY));
+        		startTime += millis() - pauseStartMillis; // negate pause time
+			}
+		}
+
 		float height;
 		unsigned long time;
 
@@ -242,24 +288,28 @@ void playAnimation(Node animation[], int animSize){
 		stepper.setSpeed(animation[animRow].speed);
 		stepper.step(nextPos);
 		motorCurrent = (animation[animRow].height == 0) ? 0 : height;
-
-		// Check if the driver has requested the animation to stop.
-		if(Serial.available() > 0){
-			String cmd = Serial.readString();
-			if(cmd.equals(CONTROL_PLAYSTOP)){ // stop
-				running = false;
-				Serial.print(CONTROL_PLAYSTOP);
-				break;
-			}
-			if(cmd.equals("~")){ // pause
-				Serial.setTimeout(0xFFFFFFFFUL); // wait for 50 days for pause retoggle
-				Serial.readString().equals("~");
-				Serial.setTimeout(TIMEOUT);
-			}
-		}
 	}
 
-	resetMotor();
+	//resetMotor();
+}
+
+// Play one node only, regardless of its time value. huuhgin eelleer
+void forceNodeExecute(Node node){
+	float height;
+	// Calculate height as percentage of the max motor steps.
+	if(node.height < 0) node.height = 0;
+	if(node.height > 100) node.height = 100;
+	height = (MOTOR_STEPS * ((float)node.height / 100));
+
+	if(node.speed < 0 || node.speed > MOTOR_SPEED) node.speed = MOTOR_SPEED;
+
+	int nextPos = height - motorCurrent;
+
+	led.setPixelColor(0, led.Color(node.r, node.g, node.b));
+	led.show();
+	stepper.setSpeed(MOTOR_SPEED);
+	stepper.step(nextPos);
+	motorCurrent = (node.height == 0) ? 0 : height;
 }
 
 // Whether the requested time has been surpassed.

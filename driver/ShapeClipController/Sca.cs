@@ -12,7 +12,7 @@ namespace ShapeClipController
 {
     static class Sca
     {
-        public static readonly int MaxAnimationSize = 128;
+        public static readonly int MaxAnimationSize = 226;
 
         public static List<string[]> OpenSca()
         {
